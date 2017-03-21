@@ -204,7 +204,7 @@ QPixmap FramesWidget::getPixmapPicture(Model::Element element, int heig)
 		f1.close();
 	}
 	*/
-	pxm = Model::get()->getPixmapFromElement(element).scaledToHeight(heig);
+	pxm = Model::get()->getPixmapFromElement(element).scaledToHeight(heig, Qt::SmoothTransformation);
 	/*
 	if (file.open(QIODevice::ReadOnly))
 		{

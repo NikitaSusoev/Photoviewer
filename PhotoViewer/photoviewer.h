@@ -37,6 +37,8 @@ public:
 	
 
 public slots:
+	void makeOwnScale();
+	void showAll();
 	void chooseFiles();
 	void backPicture();
 	void forwardPicture();

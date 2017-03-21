@@ -13,12 +13,48 @@ PhotoWidget::PhotoWidget(QWidget *parent)
 {	
 	_currentScale = 1; 
 	connect(Model::get(), SIGNAL(modelChanged()), this, SLOT(modelChanged()));
+	createCanvas();
+	_viewMode = fitScale;
 }
 
 PhotoWidget::~PhotoWidget()
 {
 	
 }
+
+void PhotoWidget::createCanvas()
+{
+	QImage img(2,2,QImage::Format_RGB32);
+	img.setPixel(0,0,qRgb(150,150,150));
+	img.setPixel(0,1,qRgb(255,255,255));
+	img.setPixel(1,0,qRgb(255,255,255));
+	img.setPixel(1,1,qRgb(150,150,150));
+
+	img = img.scaled(40,40);
+
+	_brushCanvas.setTextureImage(img);
+
+
+}
+
+
+void PhotoWidget::setScaleMode(ViewMode mode)
+{
+	switch (mode)
+	{
+	case unitScale:
+			  
+		break;
+
+	case fitScale:
+
+		break;
+
+	case otherScale:
+
+		break;
+	}
+
 
 void PhotoWidget::setPixmap(const QPixmap &pxm)
 {
@@ -44,6 +80,7 @@ void PhotoWidget::showPicture(Model::Element element)
 	//}
 }
 
+
 void PhotoWidget::modelChanged()
 {
 	if (!(Model::get()->selectedElement().filename == QString()))
@@ -56,24 +93,17 @@ void PhotoWidget::paintEvent(QPaintEvent *event)
 {
 	QPainter paint(this);
 	
-	QBrush br;
-	QImage img(2,2,QImage::Format_RGB32);
-	img.setPixel(0,0,qRgb(150,150,150));
-	img.setPixel(0,1,qRgb(255,255,255));
-	img.setPixel(1,0,qRgb(255,255,255));
-	img.setPixel(1,1,qRgb(150,150,150));
-	
-	img = img.scaled(this->frameGeometry().width()/5,this->frameGeometry().height()/5);
-	
-	br.setTextureImage(img);
-	QRect rect(this->frameGeometry());
-	paint.fillRect(rect,br);
-
 	QPixmap pix;
-	pix = _pict.scaledToWidth(frameSize().width());
-	pix = pix.scaledToWidth(frameSize().height());
+	pix = _pict.scaledToWidth(frameSize().width(),Qt::SmoothTransformation);
+	pix = pix.scaledToWidth(frameSize().height(),Qt::SmoothTransformation);
 	_widthPix = pix.width();
 	_heightPix = pix.height();
+
+	if (pix.hasAlphaChannel())
+	{
+		QRect rect(frameGeometry());
+		paint.fillRect(rect,_brushCanvas);
+	}
 
 	paint.scale(_currentScale, _currentScale);
 	_pointPicture.setX(width()/2 - _widthPix/2);

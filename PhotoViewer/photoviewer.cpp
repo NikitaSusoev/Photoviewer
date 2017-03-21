@@ -57,7 +57,7 @@ void PhotoViewer::createProperties(QString filename)
 	}
 	else
 	{
-		setProperties(filename, getSizePicture(filename), QString::number(Model::get()->indexSelectedFilename()+1), QString());
+		setProperties(filename, getSizePicture(filename), QString::number(Model::get()->indexSelectedFilename() + 1), QString());
 	}	
 }
 
@@ -71,6 +71,16 @@ void PhotoViewer::setProperties(QString filename, QString size, QString numberOf
 	ui.treeWidget->topLevelItem(5)->setText(1,others);
 	ui.treeWidget->topLevelItem(6)->setText(1,others);
 	ui.treeWidget->topLevelItem(7)->setText(1,others);
+}
+
+void PhotoViewer::makeOwnScale()
+{
+	ui.pic->setScaleMode(unitScale);
+}
+
+void PhotoViewer::showAll()
+{
+	ui.pic->setScaleMode(fitScale);
 }
 
 void PhotoViewer::chooseFiles()
@@ -223,7 +233,7 @@ WebPData PhotoViewer::createWebPAnimation(QList<QImage *> images)
 			fr.id = WEBP_CHUNK_ANMF;
 			fr.x_offset = 0;
 			fr.y_offset = 0;
-			fr.duration = 1000;
+			fr.duration = 500;
 			fr.dispose_method = WEBP_MUX_DISPOSE_BACKGROUND;
 			fr.blend_method = WEBP_MUX_BLEND;
 			int push = WebPMuxPushFrame(mux, &fr, 1);	

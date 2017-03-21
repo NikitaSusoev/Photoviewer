@@ -5,6 +5,13 @@
 #include <QPixmap>
 #include "model.h"
 
+namespace photoViewer {
+
+	enum ViewMode {unitScale, fitScale, otherScale};
+}
+
+using namespace photoViewer;
+
 class PhotoWidget : public QWidget
 {
 	Q_OBJECT
@@ -19,12 +26,16 @@ class PhotoWidget : public QWidget
 		int _heightPix;
 		QSize _tempFrameSize;
 		QPixmap _tempPix;
+		QBrush _brushCanvas;
+		ViewMode _viewMode ;
 
 public:
 	PhotoWidget(QWidget *parent);
 	~PhotoWidget();
 	void setPixmap(const QPixmap &pxm);
 	void showPicture(Model::Element element);
+	void createCanvas();
+	void setScaleMode(ViewMode mode);
 
 public slots:
 
