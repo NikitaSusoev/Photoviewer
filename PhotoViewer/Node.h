@@ -10,6 +10,7 @@ class Node
 	bool _isSelect;
 	QString _filename;
 	int _indexNode;
+	int _indexFrame;
 
 public:
 	Node(void);
@@ -25,6 +26,8 @@ public:
 	void setSelection(bool slct){_isSelect = slct;}
 	QString filename(){return _filename;}
 	void setFilename(QString flnm){_filename = flnm;}
+	int indexFrame(){return _indexFrame;}
+	void setIndexFrame(int flnm){_indexFrame = flnm;}
 	int indexNode(){return _indexNode;}
 	void setIndexNode(int index){_indexNode = index;}
 

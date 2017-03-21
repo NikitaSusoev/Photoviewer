@@ -6,6 +6,7 @@
 #include "Node.h"
 #include <QScrollBar>
 #include <QAction>
+#include "model.h"
 
 class FramesWidget : public QWidget
 {
@@ -25,7 +26,7 @@ class FramesWidget : public QWidget
 		int _tempOffset;
 		int _countCall;
 		QPoint _contextPoint;
-		QStringList _currentLst;
+		QList <Model::Element> _currentElements;
 
 public:
 	FramesWidget(QWidget *parent);
@@ -33,10 +34,11 @@ public:
 	void setNodes(QList<Node *> lst);
 	void setPixmap(QPixmap &pix);
 	QString getFilenameSelectedPicture();
-	void selectFilename(QString newFilename);
-	void setFilenames(QStringList lst);
-	int getWidthPicture(QString filename, int heig);
-	QPixmap getPixmapPicture(QString filename, int heig);
+	void selectElement(Model::Element element);
+	void setFilenames(QList <Model::Element> elements);
+	//int getWidthPicture(QString filename, int heig);
+	QPixmap getPixmapPicture(Model::Element element, int heig);
+	bool compareElementsList(QList <Model::Element> elements);
 
 private:
 	void generateOffsetPicture(Node *node);

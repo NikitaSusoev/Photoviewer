@@ -34,7 +34,7 @@ public:
 	WebPData getWebPDataFromImage(QImage *image);
 	QImage* getFrameFromFile(QString file);
 	FileData getFileData(QString file);
-	QList <Model::Element> generateAllFramesFromFilenames(QStringList lst);
+	
 
 public slots:
 	void chooseFiles();

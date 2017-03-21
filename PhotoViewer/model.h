@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QList>
 #include <QStringList>
+#include <QPixmap>
+
 
 
 class Model : public QObject
@@ -35,9 +37,13 @@ public:
 	bool ifOnlyLastIsSelected();
 	void setSelection(int index, bool value);
 	QList<int> selectedObjects();
-	QString selectedFilename();
+	Element selectedElement();
 	int indexSelectedFilename();
 	bool isSelected(int index);
+	void addElement(QStringList lst);
+
+	QList <Model::Element> generateAllFramesFromFilenames(QStringList lst);
+	QPixmap getPixmapFromElement(Element);
 
 	QList <Element> elements(){return _elements;}
 	void setElements(QList <Element> elements);

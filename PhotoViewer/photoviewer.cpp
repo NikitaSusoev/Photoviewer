@@ -81,59 +81,10 @@ void PhotoViewer::chooseFiles()
 	if (lst.isEmpty())
 		return;
 
-	ui.statusBar->showMessage(QString::number(generateAllFramesFromFilenames(lst).count()));
-	Model::get()->setElements(generateAllFramesFromFilenames(lst));
+	ui.statusBar->showMessage(QString::number(Model::get()->generateAllFramesFromFilenames(lst).count()));
+	Model::get()->setElements(Model::get()->generateAllFramesFromFilenames(lst));
 }
 
-QList <Model::Element> PhotoViewer::generateAllFramesFromFilenames(QStringList lst)
-{
-	QList <Model::Element> elements;
-
-	foreach(QString filename, lst){
-
-		QFile f1(filename);
-		Model::Element element;
-
-		if (filename.contains(".webp", Qt::CaseInsensitive))
-		{
-			if (f1.open(QIODevice::ReadOnly))
-			{
-				QByteArray ar = f1.readAll();
-				WebPData webPData;
-				webPData.bytes = (const uint8_t *)ar.constData();
-				webPData.size = ar.size();
-				WebPDemuxer *demux = WebPDemux(&webPData);
-				int countFrames = WebPDemuxGetI(demux, WEBP_FF_FRAME_COUNT);
-
-				if (countFrames > 1)
-				{
-					element.filename = filename;
-
-					for (int i = 0; i < countFrames; i++)
-					{	
-						element.frameIndex = i;
-						elements.append(element);
-
-					}
-				} 
-				else
-				{
-					element.filename = filename;
-					element.frameIndex = 0;
-					elements.append(element);
-				}
-			}
-		} 
-		else
-		{
-			element.filename = filename;
-			element.frameIndex = 0;
-			elements.append(element);
-		}
-
-	}
-	return elements;
-}
 
 void PhotoViewer::backPicture()
 {
@@ -149,9 +100,9 @@ void PhotoViewer::forwardPicture()
 
 void PhotoViewer::modelChanged()
 {
-	createProperties(Model::get()->selectedFilename());
+	createProperties(Model::get()->selectedElement().filename);
 
-	if (!(Model::get()->selectedFilename() == QString()))
+	if (!(Model::get()->selectedElement().filename == QString()))
 	{
 		ui.back->setDisabled(Model::get()->ifOnlyFirstIsSelected());
 		ui.forward->setDisabled(Model::get()->ifOnlyLastIsSelected());
@@ -173,12 +124,12 @@ void PhotoViewer::addPictures()
 		return;
 	}
 
-	Model::get()->addElement(generateAllFramesFromFilenames(picturesLst));
+	Model::get()->addElement(Model::get()->generateAllFramesFromFilenames(picturesLst));
 }
 
 void PhotoViewer::save()
 {
-	QList<QImage *> images;
+	QList <QImage *> images;
 	
 	QList <Model::Element> elements = Model::get()->elements();
 	QString filename = QFileDialog::getSaveFileName(this, "Choose Folder", "", ".webp");
@@ -190,20 +141,25 @@ void PhotoViewer::save()
 
 	foreach( Model::Element element, elements){
 
-		if (element.filename.contains(".webp",Qt::CaseInsensitive))
+		/*if (element.filename.contains(".webp",Qt::CaseInsensitive))
 		{
 			//должна быть проверка на несколько вебп в одном файле и вставка элементов, если их несколько 
 		} 
 		else
 		{
-		}
-
-		images.append(getFrameFromFile(element.filename));
+		}*/
+		QImage *image = new QImage(Model::get()->getPixmapFromElement(element).toImage());
+		images.append(image);
 	}
 
 	QFile f(filename);
 	f.open(QIODevice::WriteOnly);
 	WebPData webPData = createWebPAnimation(images);
+
+	foreach(QImage *image, images){
+		delete image;
+	}
+
 	f.write((const char*)webPData.bytes,webPData.size);
 	f.close();
 }
@@ -285,20 +241,21 @@ WebPData PhotoViewer::getWebPDataFromImage(QImage *image)
 {
 	uint8_t *output;
 	WebPData webPDataForImage;
+	QImage img;
 
 	if (image->hasAlphaChannel())
 	{
-		image->convertToFormat(QImage::Format_ARGB32);
-		webPDataForImage.size =  WebPEncodeLosslessBGRA((uint8_t *)image->bits(),image->width(),image->height(), image->bytesPerLine(),&output);
+		img = image->convertToFormat(QImage::Format_ARGB32);
+		webPDataForImage.size = WebPEncodeLosslessBGRA((uint8_t *)img.bits(),img.width(),img.height(), img.bytesPerLine(),&output);
 		webPDataForImage.bytes = output; 
 	}
 	else
 	{
-		image->convertToFormat(QImage::Format_RGB32);
-		webPDataForImage.size = WebPEncodeLosslessBGR((uint8_t *)image->bits(),image->width(),image->height(), image->bytesPerLine(),&output); 
+		img = image->convertToFormat(QImage::Format_RGB888);
+		webPDataForImage.size = WebPEncodeLosslessRGB((uint8_t *)img.bits(),img.width(),img.height(), img.bytesPerLine(),&output); 
 		webPDataForImage.bytes = output; 
 	}
-	
+
 	return webPDataForImage;
 }
 

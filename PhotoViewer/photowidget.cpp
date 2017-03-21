@@ -22,21 +22,15 @@ PhotoWidget::~PhotoWidget()
 
 void PhotoWidget::setPixmap(const QPixmap &pxm)
 {
-	_tempPix = pxm;
-	
-	_pict = pxm.scaledToWidth(frameSize().width());
-	_pict = _pict.scaledToHeight(frameSize().height());
-	
-	_widthPix = _pict.width();
-	_heightPix = _pict.height();
+	_pict = pxm;
 	update();
 }
 
-void PhotoWidget::showPicture(QString filename)
+void PhotoWidget::showPicture(Model::Element element)
 {
-	setWindowTitle(filename);
-
-	QFile file(filename);
+	setWindowTitle(element.filename);
+/*
+	QFile file(element.filename);
 	int wid, heig;
 
 	if (file.open(QIODevice::ReadOnly))
@@ -44,24 +38,48 @@ void PhotoWidget::showPicture(QString filename)
 		QByteArray ar = file.readAll();
 		uint8_t *pData = WebPDecodeBGRA((const uint8_t *)ar.constData(), ar.size(), &wid, &heig);
 		QImage img(pData, wid, heig, QImage::Format_ARGB32);
-		QPixmap pix = QPixmap::fromImage(img);
-		setPixmap(pix);
-		file.close();
-	}
+		QPixmap pix = QPixmap::fromImage(img);*/
+		setPixmap(Model::get()->getPixmapFromElement(element));
+	//	file.close();
+	//}
 }
 
 void PhotoWidget::modelChanged()
 {
-	showPicture(Model::get()->selectedFilename());
+	if (!(Model::get()->selectedElement().filename == QString()))
+	{
+		showPicture(Model::get()->selectedElement());
+	}	
 }
 
 void PhotoWidget::paintEvent(QPaintEvent *event)
 {
 	QPainter paint(this);
+	
+	QBrush br;
+	QImage img(2,2,QImage::Format_RGB32);
+	img.setPixel(0,0,qRgb(150,150,150));
+	img.setPixel(0,1,qRgb(255,255,255));
+	img.setPixel(1,0,qRgb(255,255,255));
+	img.setPixel(1,1,qRgb(150,150,150));
+	
+	img = img.scaled(this->frameGeometry().width()/5,this->frameGeometry().height()/5);
+	
+	br.setTextureImage(img);
+	QRect rect(this->frameGeometry());
+	paint.fillRect(rect,br);
+
+	QPixmap pix;
+	pix = _pict.scaledToWidth(frameSize().width());
+	pix = pix.scaledToWidth(frameSize().height());
+	_widthPix = pix.width();
+	_heightPix = pix.height();
+
 	paint.scale(_currentScale, _currentScale);
 	_pointPicture.setX(width()/2 - _widthPix/2);
 	_pointPicture.setY(height()/2 - _heightPix/2);
-	paint.drawPixmap(_pointPicture, _pict);
+	paint.drawPixmap(_pointPicture, pix);
+	
 }
 
 void PhotoWidget::mouseMoveEvent(QMouseEvent *event)
@@ -102,9 +120,9 @@ void PhotoWidget::wheelEvent(QWheelEvent *event)
 
 void PhotoWidget::resizeEvent (QResizeEvent *event)
 {
-	if (!_tempPix.isNull())
-	{
-		setPixmap(_tempPix);
-	}
-	
+	//if (!_tempPix.isNull())
+	//{
+	//	setPixmap(_tempPix);
+	//}
+	update();
 }

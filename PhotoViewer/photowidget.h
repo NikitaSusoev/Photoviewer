@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QPixmap>
+#include "model.h"
 
 class PhotoWidget : public QWidget
 {
@@ -22,8 +23,9 @@ class PhotoWidget : public QWidget
 public:
 	PhotoWidget(QWidget *parent);
 	~PhotoWidget();
-	void setPixmap(const QPixmap&pxm);
-	void showPicture(QString filename);
+	void setPixmap(const QPixmap &pxm);
+	void showPicture(Model::Element element);
+
 public slots:
 
 	void modelChanged();

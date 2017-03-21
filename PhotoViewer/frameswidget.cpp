@@ -14,6 +14,9 @@
 #include "webp/decode.h"
 #include "webp/encode.h"
 #include "webp/types.h"
+#include "webp/demux.h"
+#include "webp/mux.h"
+#include "webp/mux_types.h"
 
 FramesWidget::FramesWidget(QWidget *parent)
 	: QWidget(parent)
@@ -72,11 +75,11 @@ QString FramesWidget::getFilenameSelectedPicture()
 	}
 }
 
-void FramesWidget::selectFilename(QString newFilename)
+void FramesWidget::selectElement(Model::Element element)
 {
 	foreach(Node *node, _nodes)
 	{
-		if (node->filename() == newFilename)
+		if ((node->filename() == element.filename) && (node->indexFrame() == element.frameIndex))
 		{
 			generateOffsetPicture(node);
 		} 
@@ -85,7 +88,7 @@ void FramesWidget::selectFilename(QString newFilename)
 	update();
 }
 
-void FramesWidget::setFilenames(QStringList lst)
+void FramesWidget::setFilenames(QList <Model::Element> elements)
 {
 	_horScroll->setValue(0);
 	QList<Node *> nodes;
@@ -99,24 +102,27 @@ void FramesWidget::setFilenames(QStringList lst)
 	sNode->setIndexNode(indexNode);
 	sNode->setPos(0,0);
 	sNode->setSize(sW,iH);
+	sNode->setFilename("---");
 	nodes.append(sNode);
 
-	foreach(QString str, lst){
-
-		int iW=getWidthPicture(str, iH);
+	foreach(Model::Element element, elements){
+	
+		int iW=getPixmapPicture(element,iH).width();//getWidthPicture(str, iH);
 
 		ImageNode *iNode = new ImageNode();
 		iNode->setIndexNode(indexNode);
 		iNode->setPos(iX,0);
 		iNode->setSize(iW,iH);
-		iNode->setPixm(getPixmapPicture(str,iH));
-		iNode->setFilename(str);
+		iNode->setPixm(getPixmapPicture(element,iH));
+		iNode->setFilename(element.filename);
+		iNode->setIndexFrame(element.frameIndex);
 		iNode->setSelection(false);
 
-		if (lst.first() == str)
+		if ((elements.first().filename == element.filename) && (element.frameIndex == 0))
 		{
 			iNode->setSelection(true);
 		}
+
 		nodes.append(iNode);
 
 		indexNode = indexNode +1;
@@ -133,7 +139,7 @@ void FramesWidget::setFilenames(QStringList lst)
 
 	setNodes(nodes);
 }
-
+/*
 int FramesWidget::getWidthPicture(QString filename, int heig)
 {
 	QFile file(filename);
@@ -151,25 +157,69 @@ int FramesWidget::getWidthPicture(QString filename, int heig)
 
 	return wid;
 }
-
-QPixmap FramesWidget::getPixmapPicture(QString filename, int heig)
+*/
+QPixmap FramesWidget::getPixmapPicture(Model::Element element, int heig)
 {
-	QFile file(filename);
-	int w,h;
+	//QFile f1(element.filename);
+	//int w,h;
 	QPixmap pxm;
-
-	if (file.open(QIODevice::ReadOnly))
+	//QPixmap pix;
+	/*
+	if (f1.open(QIODevice::ReadOnly))
 	{
-		QByteArray ar = file.readAll();
-		uint8_t *pData = WebPDecodeBGRA((const uint8_t *)ar.constData(), ar.size(), &w, &h);
-		QImage img(pData, w, h, QImage::Format_ARGB32);
-		QPixmap pix = QPixmap::fromImage(img);
-		pxm = pix.scaledToHeight(heig);
-		file.close();
-	}
+		QByteArray ar = f1.readAll();
 
+		if (element.filename.contains(".webp", Qt::CaseInsensitive))
+		{
+			WebPData webPData;
+			webPData.bytes = (const uint8_t *)ar.constData();
+			webPData.size = ar.size();
+			WebPDemuxer *demux = WebPDemux(&webPData);
+			int countFrames = WebPDemuxGetI(demux, WEBP_FF_FRAME_COUNT);
+
+			if (countFrames > 1)
+			{
+				WebPIterator iter;
+				WebPDemuxGetFrame(demux,element.frameIndex,&iter);
+				uint8_t *pData1 = WebPDecodeBGRA(iter.fragment.bytes, iter.fragment.size, &w, &h);
+				QImage img(pData1, w, h, QImage::Format_ARGB32);//QImage img(iter.fragment.bytes, iter.width, iter.height, QImage::Format_ARGB32);
+				pix = QPixmap::fromImage(img);
+				pxm = pix.scaledToHeight(heig);
+			} 
+			else
+			{
+				uint8_t *pData = WebPDecodeBGRA((const uint8_t *)ar.constData(), ar.size(), &w, &h);
+				QImage img(pData, w, h, QImage::Format_ARGB32);
+				pix = QPixmap::fromImage(img);
+				pxm = pix.scaledToHeight(heig);
+			}
+		}
+		else
+		{
+			QImage img(element.filename);
+			pix = QPixmap::fromImage(img);
+			pxm = pix.scaledToHeight(heig);
+		}
+
+		f1.close();
+	}
+	*/
+	pxm = Model::get()->getPixmapFromElement(element).scaledToHeight(heig);
+	/*
+	if (file.open(QIODevice::ReadOnly))
+		{
+			QByteArray ar = file.readAll();
+			uint8_t *pData = WebPDecodeBGRA((const uint8_t *)ar.constData(), ar.size(), &w, &h);
+			QImage img(pData, w, h, QImage::Format_ARGB32);
+			QPixmap pix = QPixmap::fromImage(img);
+			pxm = pix.scaledToHeight(heig);
+			file.close();
+		}
+		*/
 	return pxm;
 }
+
+
 
 void FramesWidget::generateOffsetPicture(Node *node)
 {
@@ -203,19 +253,35 @@ void FramesWidget::valueChangedHorScroll(int value)
 
 void FramesWidget::modelChanged()
 {
-	if (!(_currentLst == Model::get()->lst()))
+	if (!(compareElementsList(Model::get()->elements())))
 	{
-		setFilenames(Model::get()->lst());
-		_currentLst = Model::get()->lst();
+		setFilenames(Model::get()->elements());
+		_currentElements = Model::get()->elements();
 	}
 
-	if (!(Model::get()->selectedFilename() == QString()))
+	if (!(Model::get()->selectedElement().filename == QString()))
 	{
-		selectFilename(Model::get()->selectedFilename());	
+		selectElement(Model::get()->selectedElement());	
 	}	
 }
 
+bool FramesWidget::compareElementsList(QList <Model::Element> elements)
+{
+	if (_currentElements.isEmpty())
+	{
+		return false;
+	}
 
+	for (int i = 0; i < elements.count(); i++)
+	{
+		if (!((QString::compare(_currentElements.at(i).filename,elements.at(i).filename) == 0) && (_currentElements.count() == elements.count())))
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
 
 void FramesWidget::paintEvent(QPaintEvent *event)
 {
@@ -228,7 +294,7 @@ void FramesWidget::paintEvent(QPaintEvent *event)
 
 void FramesWidget::mousePressEvent(QMouseEvent *event)
 {
-	if (!(Model::get()->selectedFilename() == QString()))
+	if (!(Model::get()->selectedElement().filename == QString()))
 	{
 		Model::get()->setSelection(Model::get()->indexSelectedFilename(), false);
 	}
@@ -333,7 +399,7 @@ void FramesWidget::insertPictures()
 		return;
 	}
 
-	Model::get()->insertElement(addLst,indexAfter());
+	Model::get()->insertElement(Model::get()->generateAllFramesFromFilenames(addLst),indexAfter());
 }
 
 void FramesWidget::deletePictures()
