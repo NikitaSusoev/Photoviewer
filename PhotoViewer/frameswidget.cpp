@@ -18,11 +18,14 @@
 #include "webp/mux.h"
 #include "webp/mux_types.h"
 
+
 FramesWidget::FramesWidget(QWidget *parent)
 	: QWidget(parent)
 {
 	_startValueScroll = 0;
 	_countCall = 0;
+	_imageHeight = 180;
+	_spaceWidth = 20;
 
 	QVBoxLayout *box = new QVBoxLayout;
 	_horScroll = new QScrollBar;
@@ -93,27 +96,25 @@ void FramesWidget::setFilenames(QList <Model::Element> elements)
 	_horScroll->setValue(0);
 	QList<Node *> nodes;
 
-	int iH = 180;
-	int sW = 20;
-	int iX = sW;
+	int imageNodeX = _spaceWidth;
 	int indexNode = 0;
 
 	SpaceNode *sNode = new SpaceNode();
 	sNode->setIndexNode(indexNode);
 	sNode->setPos(0,0);
-	sNode->setSize(sW,iH);
+	sNode->setSize(_spaceWidth,_imageHeight);
 	sNode->setFilename("---");
 	nodes.append(sNode);
 
 	foreach(Model::Element element, elements){
 	
-		int iW=getPixmapPicture(element,iH).width();//getWidthPicture(str, iH);
+		int imageWidth=getPixmapPicture(element,_imageHeight).width();
 
 		ImageNode *iNode = new ImageNode();
 		iNode->setIndexNode(indexNode);
-		iNode->setPos(iX,0);
-		iNode->setSize(iW,iH);
-		iNode->setPixm(getPixmapPicture(element,iH));
+		iNode->setPos(imageNodeX,0);
+		iNode->setSize(imageWidth,_imageHeight);
+		iNode->setPixm(getPixmapPicture(element,_imageHeight));
 		iNode->setFilename(element.filename);
 		iNode->setIndexFrame(element.frameIndex);
 		iNode->setSelection(false);
@@ -129,93 +130,22 @@ void FramesWidget::setFilenames(QList <Model::Element> elements)
 
 		SpaceNode *sNode = new SpaceNode();
 		sNode->setIndexNode(indexNode);
-		sNode->setPos(iX+iW,0);
-		sNode->setSize(sW,iH);
+		sNode->setPos(imageNodeX+imageWidth,0);
+		sNode->setSize(_spaceWidth,_imageHeight);
 		sNode->setFilename("---");
 		nodes.append(sNode);
 
-		iX=iX+iW+sW;
+		imageNodeX = imageNodeX + imageWidth + _spaceWidth;
 	}
 
 	setNodes(nodes);
 }
-/*
-int FramesWidget::getWidthPicture(QString filename, int heig)
-{
-	QFile file(filename);
-	int w,h,wid;
 
-	if (file.open(QIODevice::ReadOnly))
-	{
-		QByteArray ar = file.readAll();
-		uint8_t *pData = WebPDecodeBGRA((const uint8_t *)ar.constData(), ar.size(), &w, &h);
-		QImage img(pData, w, h, QImage::Format_ARGB32);
-		QPixmap pix = QPixmap::fromImage(img);
-		wid = pix.scaledToHeight(heig).width();
-		file.close();
-	}
-
-	return wid;
-}
-*/
 QPixmap FramesWidget::getPixmapPicture(Model::Element element, int heig)
 {
-	//QFile f1(element.filename);
-	//int w,h;
 	QPixmap pxm;
-	//QPixmap pix;
-	/*
-	if (f1.open(QIODevice::ReadOnly))
-	{
-		QByteArray ar = f1.readAll();
-
-		if (element.filename.contains(".webp", Qt::CaseInsensitive))
-		{
-			WebPData webPData;
-			webPData.bytes = (const uint8_t *)ar.constData();
-			webPData.size = ar.size();
-			WebPDemuxer *demux = WebPDemux(&webPData);
-			int countFrames = WebPDemuxGetI(demux, WEBP_FF_FRAME_COUNT);
-
-			if (countFrames > 1)
-			{
-				WebPIterator iter;
-				WebPDemuxGetFrame(demux,element.frameIndex,&iter);
-				uint8_t *pData1 = WebPDecodeBGRA(iter.fragment.bytes, iter.fragment.size, &w, &h);
-				QImage img(pData1, w, h, QImage::Format_ARGB32);//QImage img(iter.fragment.bytes, iter.width, iter.height, QImage::Format_ARGB32);
-				pix = QPixmap::fromImage(img);
-				pxm = pix.scaledToHeight(heig);
-			} 
-			else
-			{
-				uint8_t *pData = WebPDecodeBGRA((const uint8_t *)ar.constData(), ar.size(), &w, &h);
-				QImage img(pData, w, h, QImage::Format_ARGB32);
-				pix = QPixmap::fromImage(img);
-				pxm = pix.scaledToHeight(heig);
-			}
-		}
-		else
-		{
-			QImage img(element.filename);
-			pix = QPixmap::fromImage(img);
-			pxm = pix.scaledToHeight(heig);
-		}
-
-		f1.close();
-	}
-	*/
 	pxm = Model::get()->getPixmapFromElement(element).scaledToHeight(heig, Qt::SmoothTransformation);
-	/*
-	if (file.open(QIODevice::ReadOnly))
-		{
-			QByteArray ar = file.readAll();
-			uint8_t *pData = WebPDecodeBGRA((const uint8_t *)ar.constData(), ar.size(), &w, &h);
-			QImage img(pData, w, h, QImage::Format_ARGB32);
-			QPixmap pix = QPixmap::fromImage(img);
-			pxm = pix.scaledToHeight(heig);
-			file.close();
-		}
-		*/
+
 	return pxm;
 }
 
@@ -304,15 +234,12 @@ void FramesWidget::mousePressEvent(QMouseEvent *event)
 		QRect rect(node->pos(),node->size());
 		
 		if ((rect.contains(event->x(),event->y())) && (!(node->filename() == "---")))
-		{
-			
-			//_pointPictureX = node->pos().x();
-			//_pointPictureY = node->pos().y();
-			
+		{			
 			Model::get()->setSelection(node->indexNode(), true);
 
+			_startValueNodeX = node->pos().x();
 			_pointMouseX = event->x();
-			//_pointMouseY = event->y();
+
 			break;
 		} 
 	}
@@ -332,16 +259,32 @@ void FramesWidget::mouseMoveEvent(QMouseEvent *event)
 		{
 			_pointMouseX = event->x();
 			node->setPos(node->pos().x() + dx,node->pos().y());
+		} 
+	}
 
+	update();
+}
+
+void FramesWidget::mouseReleaseEvent ( QMouseEvent * event ){
+
+	QList <Model::Element> elements;
+
+	foreach(Node *node, _nodes)
+	{
+		if (node->indexNode() == Model::get()->indexSelectedFilename() && (!(node->filename() == "---")))
+		{
+			if ((node->pos().x() - _startValueNodeX) > (node->size().width() + 20)) 
+			{
+				int afterIndex = (node->pos().x() - _startValueNodeX)/(node->size().width() + 20) + node->indexNode() + 1;
+				elements.append(Model::get()->selectedElement());
+				Model::get()->insertElement(elements,afterIndex);
+				Model::get()->deleteElement(node->indexNode());
+				update();
+			}
 		} 
 	}
 
 
-	//int dx = event->x() - _pointMouseX;
-	//int dy = event->y() - _pointMouseY;
-	//_pointPicture.setX(_pointPictureX + dx);
-	//_pointPicture.setY(_pointPictureY + dy);
-	update();
 }
 
 void FramesWidget::resizeEvent(QResizeEvent *event)

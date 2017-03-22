@@ -43,18 +43,19 @@ void PhotoWidget::setScaleMode(ViewMode mode)
 	switch (mode)
 	{
 	case unitScale:
-			  
+		_viewMode = unitScale;
 		break;
 
 	case fitScale:
-
+		_viewMode = fitScale;
 		break;
 
 	case otherScale:
-
+		_viewMode = otherScale;
 		break;
 	}
-
+	update();
+}
 
 void PhotoWidget::setPixmap(const QPixmap &pxm)
 {
@@ -65,19 +66,7 @@ void PhotoWidget::setPixmap(const QPixmap &pxm)
 void PhotoWidget::showPicture(Model::Element element)
 {
 	setWindowTitle(element.filename);
-/*
-	QFile file(element.filename);
-	int wid, heig;
-
-	if (file.open(QIODevice::ReadOnly))
-	{
-		QByteArray ar = file.readAll();
-		uint8_t *pData = WebPDecodeBGRA((const uint8_t *)ar.constData(), ar.size(), &wid, &heig);
-		QImage img(pData, wid, heig, QImage::Format_ARGB32);
-		QPixmap pix = QPixmap::fromImage(img);*/
-		setPixmap(Model::get()->getPixmapFromElement(element));
-	//	file.close();
-	//}
+	setPixmap(Model::get()->getPixmapFromElement(element));
 }
 
 
@@ -92,10 +81,22 @@ void PhotoWidget::modelChanged()
 void PhotoWidget::paintEvent(QPaintEvent *event)
 {
 	QPainter paint(this);
-	
 	QPixmap pix;
-	pix = _pict.scaledToWidth(frameSize().width(),Qt::SmoothTransformation);
-	pix = pix.scaledToWidth(frameSize().height(),Qt::SmoothTransformation);
+
+	switch (_viewMode)
+	{
+	case unitScale:
+		pix = _pict;
+		break;
+	case fitScale:
+		pix = _pict.scaledToWidth(frameSize().width(),Qt::SmoothTransformation);
+		pix = pix.scaledToWidth(frameSize().height(),Qt::SmoothTransformation);
+		break;
+	case otherScale:
+
+		break;
+	}
+	
 	_widthPix = pix.width();
 	_heightPix = pix.height();
 
@@ -150,9 +151,5 @@ void PhotoWidget::wheelEvent(QWheelEvent *event)
 
 void PhotoWidget::resizeEvent (QResizeEvent *event)
 {
-	//if (!_tempPix.isNull())
-	//{
-	//	setPixmap(_tempPix);
-	//}
 	update();
 }

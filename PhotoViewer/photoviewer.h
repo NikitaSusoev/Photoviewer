@@ -27,14 +27,15 @@ public:
 	};
 
 	void showPicture(QString filename);
-	QString getSizePicture(QString str);
-	void createProperties(QString filename);
-	void setProperties(QString filename, QString size, QString numberOfPicture, QString others);
+	QString getSizePicture(Model::Element element);
+	void createProperties(Model::Element element);
+	void setProperties(QString filename, QString size, QString numberOfPicture, QString typeOfFile, QString others);
 	WebPData createWebPAnimation(QList<QImage *> images);
 	WebPData getWebPDataFromImage(QImage *image);
 	QImage* getFrameFromFile(QString file);
 	FileData getFileData(QString file);
-	
+	QString getTypeOfFile(QString filename);
+
 
 public slots:
 	void makeOwnScale();

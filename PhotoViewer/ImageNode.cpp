@@ -45,7 +45,7 @@ void ImageNode::paint(QPainter *painter, QPixmap pix)
 		QPoint posCanvas(pos().x(), pos().y());
 		QSize sizeCanvas(size().width(), size().height());
 		QRect rectCanvas(posCanvas,sizeCanvas);
-		painter->fillRect(rectCanvas,_brushCanvas);
+		painter->fillRect(rectCanvas, _brushCanvas);
 	}
 
 	painter->drawPixmap(pos(),pixm());

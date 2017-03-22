@@ -27,6 +27,9 @@ class FramesWidget : public QWidget
 		int _countCall;
 		QPoint _contextPoint;
 		QList <Model::Element> _currentElements;
+		int _startValueNodeX;
+		int _imageHeight;
+		int _spaceWidth;
 
 public:
 	FramesWidget(QWidget *parent);
@@ -36,7 +39,6 @@ public:
 	QString getFilenameSelectedPicture();
 	void selectElement(Model::Element element);
 	void setFilenames(QList <Model::Element> elements);
-	//int getWidthPicture(QString filename, int heig);
 	QPixmap getPixmapPicture(Model::Element element, int heig);
 	bool compareElementsList(QList <Model::Element> elements);
 
@@ -54,11 +56,13 @@ signals:
 	void selectionChanged();
 	
 protected:
-	void paintEvent(QPaintEvent *event);
+	void mouseReleaseEvent (QMouseEvent * event );
+	void mouseMoveEvent(QMouseEvent *event);
 	void mousePressEvent(QMouseEvent *event);
+	void paintEvent(QPaintEvent *event);
 	void resizeEvent (QResizeEvent *event);
 	void contextMenuEvent (QContextMenuEvent *event);
-	void mouseMoveEvent(QMouseEvent *event);
+
 };
 
 #endif // FRAMESWIDGET_H

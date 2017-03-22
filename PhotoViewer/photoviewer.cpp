@@ -24,6 +24,8 @@ PhotoViewer::PhotoViewer(QWidget *parent, Qt::WFlags flags)
 	ui.setupUi(this);
 	ui.back->setDisabled(true);
 	ui.forward->setDisabled(true);
+	ui.ownScaleButton->setDisabled(true);
+	ui.showAllButton->setDisabled(true);
 
 	connect(ui.widget, SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
 	connect(Model::get(), SIGNAL(modelChanged()), this, SLOT(modelChanged()));
@@ -34,9 +36,9 @@ PhotoViewer::~PhotoViewer()
 
 }
 
-QString PhotoViewer::getSizePicture(QString filename)
+QString PhotoViewer::getSizePicture(Model::Element element)
 {
-	QFile file(filename);
+	QFile file(element.filename);
 	int wid, heig;
 
 	if (file.open(QIODevice::ReadOnly))
@@ -49,24 +51,50 @@ QString PhotoViewer::getSizePicture(QString filename)
 	return (QString::number(wid) + " x " + QString::number(heig));
 }
 
-void PhotoViewer::createProperties(QString filename)
+void PhotoViewer::createProperties(Model::Element element)
 {
-	if (filename == QString())
+	if (element.filename == QString())
 	{
-		setProperties(QString(), QString(), QString(), QString());
+		setProperties(QString(), QString(), QString(), QString(), QString());
 	}
 	else
 	{
-		setProperties(filename, getSizePicture(filename), QString::number(Model::get()->indexSelectedFilename() + 1), QString());
+		setProperties(element.filename,
+			getSizePicture(element),
+			QString::number(Model::get()->indexSelectedFilename() + 1),
+			getTypeOfFile(element.filename),
+			QString());
 	}	
 }
 
-void PhotoViewer::setProperties(QString filename, QString size, QString numberOfPicture, QString others)
+QString PhotoViewer::getTypeOfFile(QString filename)
+{
+	if (filename.endsWith(".webp",Qt::CaseInsensitive))
+	{
+		return "WebP";
+	}
+	if (filename.endsWith(".jpeg",Qt::CaseInsensitive))
+	{
+		return "JPEG";
+	}
+	if (filename.endsWith(".jpg",Qt::CaseInsensitive))
+	{
+		return "JPG";
+	}
+	if (filename.endsWith(".png",Qt::CaseInsensitive))
+	{
+		return "PNG";
+	}
+
+	return "Unknown type";
+}
+
+void PhotoViewer::setProperties(QString filename, QString size, QString numberOfPicture, QString typeOfFile, QString others)
 {
 	ui.treeWidget->topLevelItem(0)->setText(1,filename);
 	ui.treeWidget->topLevelItem(1)->setText(1,size);
 	ui.treeWidget->topLevelItem(2)->setText(1,others);
-	ui.treeWidget->topLevelItem(3)->setText(1,others);
+	ui.treeWidget->topLevelItem(3)->setText(1,typeOfFile);
 	ui.treeWidget->topLevelItem(4)->setText(1,numberOfPicture);
 	ui.treeWidget->topLevelItem(5)->setText(1,others);
 	ui.treeWidget->topLevelItem(6)->setText(1,others);
@@ -110,7 +138,13 @@ void PhotoViewer::forwardPicture()
 
 void PhotoViewer::modelChanged()
 {
-	createProperties(Model::get()->selectedElement().filename);
+	createProperties(Model::get()->selectedElement());
+
+	if (Model::get()->elements().count() != 0)
+	{
+		ui.ownScaleButton->setDisabled(false);
+		ui.showAllButton->setDisabled(false);
+	}
 
 	if (!(Model::get()->selectedElement().filename == QString()))
 	{
@@ -133,7 +167,7 @@ void PhotoViewer::addPictures()
 	{
 		return;
 	}
-
+	
 	Model::get()->addElement(Model::get()->generateAllFramesFromFilenames(picturesLst));
 }
 
@@ -151,13 +185,6 @@ void PhotoViewer::save()
 
 	foreach( Model::Element element, elements){
 
-		/*if (element.filename.contains(".webp",Qt::CaseInsensitive))
-		{
-			//должна быть проверка на несколько вебп в одном файле и вставка элементов, если их несколько 
-		} 
-		else
-		{
-		}*/
 		QImage *image = new QImage(Model::get()->getPixmapFromElement(element).toImage());
 		images.append(image);
 	}
