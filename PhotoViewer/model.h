@@ -15,6 +15,7 @@ public:
 	struct Element{
 		QString filename; 
 		int frameIndex;
+		QString typeOfFile;
 		Element(){frameIndex = 0;}
 	};
 private:
@@ -41,6 +42,7 @@ public:
 	int indexSelectedFilename();
 	bool isSelected(int index);
 	void addElement(QStringList lst);
+	QString getTypeOfFile(QString filename);
 
 	QList <Model::Element> generateAllFramesFromFilenames(QStringList lst);
 	QPixmap getPixmapFromElement(Element);

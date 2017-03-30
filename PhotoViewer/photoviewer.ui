@@ -99,6 +99,20 @@
               </property>
              </spacer>
             </item>
+            <item>
+             <widget class="QToolButton" name="ownScaleButton">
+              <property name="text">
+               <string>1:1</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="showAllButton">
+              <property name="text">
+               <string>Show all</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
          </layout>
@@ -339,6 +353,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>ownScaleButton</sender>
+   <signal>clicked()</signal>
+   <receiver>PhotoViewerClass</receiver>
+   <slot>makeOwnScale()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>281</x>
+     <y>308</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>377</x>
+     <y>318</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>showAllButton</sender>
+   <signal>clicked()</signal>
+   <receiver>PhotoViewerClass</receiver>
+   <slot>showAll()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>346</x>
+     <y>308</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>377</x>
+     <y>318</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>chooseFiles()</slot>
@@ -349,5 +395,7 @@
   <slot>clickPicture(QTreeWidgetItem*,int)</slot>
   <slot>addPictures()</slot>
   <slot>save()</slot>
+  <slot>showAll()</slot>
+  <slot>makeOwnScale()</slot>
  </slots>
 </ui>

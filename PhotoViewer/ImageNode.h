@@ -4,6 +4,7 @@ class ImageNode :
 	public Node
 {
 	QPixmap _pixm;
+	QBrush _brushCanvas;
 
 public:
 	ImageNode(void);

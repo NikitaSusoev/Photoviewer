@@ -39,6 +39,28 @@ void Model::addElement(QStringList lst)
 
 }
 
+QString Model::getTypeOfFile(QString filename)
+{
+	if (filename.endsWith(".webp",Qt::CaseInsensitive))
+	{
+		return "WebP";
+	}
+	if (filename.endsWith(".jpeg",Qt::CaseInsensitive))
+	{
+		return "JPEG";
+	}
+	if (filename.endsWith(".jpg",Qt::CaseInsensitive))
+	{
+		return "JPG";
+	}
+	if (filename.endsWith(".png",Qt::CaseInsensitive))
+	{
+		return "PNG";
+	}
+
+	return "Unknown type";
+}
+
 QList <Model::Element> Model::generateAllFramesFromFilenames(QStringList lst)
 {
 	QList <Model::Element> elements;
@@ -48,7 +70,9 @@ QList <Model::Element> Model::generateAllFramesFromFilenames(QStringList lst)
 		QFile f1(filename);
 		Model::Element element;
 
-		if (filename.contains(".webp", Qt::CaseInsensitive))
+		element.typeOfFile = getTypeOfFile(filename);
+
+		if (filename.endsWith(".webp", Qt::CaseInsensitive))
 		{
 			if (f1.open(QIODevice::ReadOnly))
 			{
@@ -172,7 +196,6 @@ bool Model::ifOnlyLastIsSelected()
 
 void Model::setSelection(int index, bool value)
 {
-	//_selections.at(index) = value;
 	_selections.replace(index, value);
 	emit modelChanged();
 }
