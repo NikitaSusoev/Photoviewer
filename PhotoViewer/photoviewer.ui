@@ -107,7 +107,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="showAllButton">
+             <widget class="QToolButton" name="showAllButton">
               <property name="text">
                <string>Show all</string>
               </property>
@@ -376,7 +376,7 @@
    <slot>showAll()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>339</x>
+     <x>346</x>
      <y>308</y>
     </hint>
     <hint type="destinationlabel">

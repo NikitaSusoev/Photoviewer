@@ -10,6 +10,7 @@
 #include "ImageNode.h"
 #include <QFile>
 #include <QFileDialog>
+#include <QRubberBand>
 
 #include "webp/decode.h"
 #include "webp/encode.h"
@@ -216,6 +217,7 @@ bool FramesWidget::compareElementsList(QList <Model::Element> elements)
 void FramesWidget::paintEvent(QPaintEvent *event)
 {
 	QPainter paint(this);
+
 	foreach(Node *node, _nodes)
 	{
 		node->paint(&paint, _pict);
@@ -224,6 +226,15 @@ void FramesWidget::paintEvent(QPaintEvent *event)
 
 void FramesWidget::mousePressEvent(QMouseEvent *event)
 {
+
+	_origin = event->pos();
+
+	//if (_rubberBand)
+		_rubberBand = new QRubberBand(QRubberBand::Rectangle,this);
+
+	_rubberBand->setGeometry(QRect(_origin, QSize()));
+	_rubberBand->show();
+
 	if (!(Model::get()->selectedElement().filename == QString()))
 	{
 		Model::get()->setSelection(Model::get()->indexSelectedFilename(), false);
@@ -240,8 +251,14 @@ void FramesWidget::mousePressEvent(QMouseEvent *event)
 			_startValueNodeX = node->pos().x();
 			_pointMouseX = event->x();
 
+			_nodes.move(_nodes.indexOf(node),_nodes.count() - 1);
+
+			_rubberBand->hide();
+
 			break;
-		} 
+
+		}else{
+		}
 	}
 
 	update();
@@ -250,11 +267,21 @@ void FramesWidget::mousePressEvent(QMouseEvent *event)
 
 void FramesWidget::mouseMoveEvent(QMouseEvent *event)
 {
+	if (_rubberBand)
+	_rubberBand->setGeometry(QRect(_origin,event->pos()).normalized());
+
 	int dx;
 	dx = event->x() - _pointMouseX;
 
 	foreach(Node *node, _nodes)
 	{
+		QRect rect(node->pos(),node->size());
+
+		/*if (!((rect.contains(event->x(),event->y())) && (!(node->filename() == "---"))))
+		{
+			_rubberBand->setGeometry(QRect(_origin,event->pos()).normalized());
+		}*/
+
 		if (node->indexNode() == Model::get()->indexSelectedFilename())
 		{
 			_pointMouseX = event->x();
@@ -267,20 +294,43 @@ void FramesWidget::mouseMoveEvent(QMouseEvent *event)
 
 void FramesWidget::mouseReleaseEvent ( QMouseEvent * event ){
 
+	if (_rubberBand)
+	_rubberBand->hide();
+
 	QList <Model::Element> elements;
 
 	foreach(Node *node, _nodes)
 	{
+
+		QRect rect(node->pos(),node->size());
+
+		/*if (!((rect.contains(event->x(),event->y())) && (!(node->filename() == "---"))))
+		{
+			_rubberBand->hide();
+		}*/
+
 		if (node->indexNode() == Model::get()->indexSelectedFilename() && (!(node->filename() == "---")))
 		{
-			if ((node->pos().x() - _startValueNodeX) > (node->size().width() + 20)) 
+			if ((node->pos().x() - _startValueNodeX) > (node->size().width() + _spaceWidth)) 
 			{
-				int afterIndex = (node->pos().x() - _startValueNodeX)/(node->size().width() + 20) + node->indexNode() + 1;
+				int afterIndex = (node->pos().x() - _startValueNodeX)/(node->size().width() + _spaceWidth) + node->indexNode() + 1;
 				elements.append(Model::get()->selectedElement());
 				Model::get()->insertElement(elements,afterIndex);
 				Model::get()->deleteElement(node->indexNode());
-				update();
+				
+			} else if ((_startValueNodeX - node->pos().x()) > (node->size().width() + _spaceWidth))
+			{
+				int afterIndex = node->indexNode() - (_startValueNodeX - node->pos().x())/(node->size().width() + _spaceWidth);
+				elements.append(Model::get()->selectedElement());
+				Model::get()->insertElement(elements,afterIndex);
+				Model::get()->deleteElement(node->indexNode() + elements.count());
+
+			}else{
+
+				node->setPos(_startValueNodeX, node->pos().y());
 			}
+
+			update();
 		} 
 	}
 

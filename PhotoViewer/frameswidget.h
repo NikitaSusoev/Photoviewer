@@ -6,6 +6,7 @@
 #include "Node.h"
 #include <QScrollBar>
 #include <QAction>
+#include <QRubberBand>
 #include "model.h"
 
 class FramesWidget : public QWidget
@@ -30,6 +31,9 @@ class FramesWidget : public QWidget
 		int _startValueNodeX;
 		int _imageHeight;
 		int _spaceWidth;
+		int _pressedIndexNode;
+		QPoint _origin;
+		QRubberBand *_rubberBand;
 
 public:
 	FramesWidget(QWidget *parent);

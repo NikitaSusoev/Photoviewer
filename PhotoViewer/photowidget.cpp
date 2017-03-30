@@ -60,6 +60,20 @@ void PhotoWidget::setScaleMode(ViewMode mode)
 void PhotoWidget::setPixmap(const QPixmap &pxm)
 {
 	_pict = pxm;
+
+	if (this->frameSize().width()>_pict.width() && this->frameSize().height()>_pict.height())
+	{
+		_viewMode = unitScale;
+
+	} else if (this->frameSize().width()<_pict.width() && this->frameSize().height()<_pict.height())
+	{
+		_viewMode = fitScale;
+	} 
+	else
+	{
+
+	}
+
 	update();
 }
 

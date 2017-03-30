@@ -49,6 +49,4 @@ void ImageNode::paint(QPainter *painter, QPixmap pix)
 	}
 
 	painter->drawPixmap(pos(),pixm());
-
-
 }

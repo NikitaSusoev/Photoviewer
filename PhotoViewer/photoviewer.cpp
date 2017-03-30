@@ -43,10 +43,20 @@ QString PhotoViewer::getSizePicture(Model::Element element)
 
 	if (file.open(QIODevice::ReadOnly))
 	{
-		QByteArray ar = file.readAll();
-		WebPGetInfo((const uint8_t *)ar.constData(), ar.size(), &wid, &heig);
+		if (element.filename.endsWith(".webp", Qt::CaseInsensitive))
+		{
+			QByteArray ar = file.readAll();
+			WebPGetInfo((const uint8_t *)ar.constData(), ar.size(), &wid, &heig);
+		}else{
+
+			QImage img(element.filename);
+			wid = img.width();
+			heig = img.height();
+		}
+
 		file.close();
 	}
+
 
 	return (QString::number(wid) + " x " + QString::number(heig));
 }
@@ -258,9 +268,9 @@ WebPData PhotoViewer::createWebPAnimation(QList<QImage *> images)
 			fr.bitstream.size = getWebPDataFromImage(image).size;
 			fr.bitstream.bytes = getWebPDataFromImage(image).bytes;
 			fr.id = WEBP_CHUNK_ANMF;
-			fr.x_offset = 0;
+			fr.x_offset = 100;
 			fr.y_offset = 0;
-			fr.duration = 500;
+			fr.duration = 1000;
 			fr.dispose_method = WEBP_MUX_DISPOSE_BACKGROUND;
 			fr.blend_method = WEBP_MUX_BLEND;
 			int push = WebPMuxPushFrame(mux, &fr, 1);	
