@@ -200,7 +200,7 @@ void Model::setSelection(int index, bool value)
 	emit modelChanged();
 }
 
-QList<int> Model::selectedObjects()
+QList<int> Model::indexesSelectedElements()
 {
 	QList<int> trueSelections;
 
@@ -215,31 +215,37 @@ QList<int> Model::selectedObjects()
 	return trueSelections;
 }
 
-Model::Element Model::selectedElement()
+QList <Model::Element> Model::selectedElements()
 {
+	QList<Element> SelectedElements;
+	foreach(int indexSelectedElement, indexesSelectedElements()){
+
+		SelectedElements.append(_elements.at(indexSelectedElement));
+	}
+/*
 	if (selectedObjects().count() == 1)
 	{
 		return _elements.at(selectedObjects().first());
 	}
 
 	Model::Element element;
-	element.filename = QString();
+	element.filename = QString();*/
 
-	return element;
+	return SelectedElements;
 }
-
+/*
 int Model::indexSelectedFilename()
 {
-	if (selectedObjects().count() == 1)
+	if (indexesSelectedElements().count() == 1)
 	{
-		return selectedObjects().first();
+		return indexesSelectedElements().first();
 	}
 	//return -1;
-}
+}*/
 
 bool Model::isSelected(int index)
 {
-	if (selectedObjects().contains(index))
+	if (indexesSelectedElements().contains(index))
 	{
 		return true;
 	}

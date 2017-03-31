@@ -37,9 +37,9 @@ public:
 	bool ifOnlyFirstIsSelected();
 	bool ifOnlyLastIsSelected();
 	void setSelection(int index, bool value);
-	QList<int> selectedObjects();
-	Element selectedElement();
-	int indexSelectedFilename();
+	QList<int> indexesSelectedElements();
+	QList <Element> selectedElements();
+	//int indexSelectedFilename();
 	bool isSelected(int index);
 	void addElement(QStringList lst);
 	QString getTypeOfFile(QString filename);

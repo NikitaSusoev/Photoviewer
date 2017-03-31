@@ -41,7 +41,7 @@ public:
 	void setNodes(QList<Node *> lst);
 	void setPixmap(QPixmap &pix);
 	QString getFilenameSelectedPicture();
-	void selectElement(Model::Element element);
+	void selectElements(QList <Model::Element> elements);
 	void setFilenames(QList <Model::Element> elements);
 	QPixmap getPixmapPicture(Model::Element element, int heig);
 	bool compareElementsList(QList <Model::Element> elements);

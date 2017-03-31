@@ -79,16 +79,19 @@ QString FramesWidget::getFilenameSelectedPicture()
 	}
 }
 
-void FramesWidget::selectElement(Model::Element element)
+void FramesWidget::selectElements(QList <Model::Element> elements)
 {
-	foreach(Node *node, _nodes)
-	{
-		if ((node->filename() == element.filename) && (node->indexFrame() == element.frameIndex))
-		{
-			generateOffsetPicture(node);
-		} 
-	}
+	foreach(Model::Element element, elements){
 
+		foreach(Node *node, _nodes)
+		{
+			if ((node->filename() == element.filename) && (node->indexFrame() == element.frameIndex))
+			{
+				generateOffsetPicture(node);
+			} 
+		}
+	}
+	
 	update();
 }
 
@@ -190,9 +193,9 @@ void FramesWidget::modelChanged()
 		_currentElements = Model::get()->elements();
 	}
 
-	if (!(Model::get()->selectedElement().filename == QString()))
+	if (Model::get()->selectedElements().count() > 0)
 	{
-		selectElement(Model::get()->selectedElement());	
+		selectElements(Model::get()->selectedElements());	
 	}	
 }
 
@@ -226,18 +229,20 @@ void FramesWidget::paintEvent(QPaintEvent *event)
 
 void FramesWidget::mousePressEvent(QMouseEvent *event)
 {
-
 	_origin = event->pos();
 
-	//if (_rubberBand)
-		_rubberBand = new QRubberBand(QRubberBand::Rectangle,this);
-
+	_rubberBand = new QRubberBand(QRubberBand::Rectangle,this);
 	_rubberBand->setGeometry(QRect(_origin, QSize()));
 	_rubberBand->show();
 
-	if (!(Model::get()->selectedElement().filename == QString()))
+
+	if (!Model::get()->selectedElements().isEmpty())
 	{
-		Model::get()->setSelection(Model::get()->indexSelectedFilename(), false);
+		foreach(int indexSelectedElement, Model::get()->indexesSelectedElements()){
+
+			Model::get()->setSelection(indexSelectedElement, false);
+		}
+		//Model::get()->setSelection(Model::get()->indexSelectedFilename(), false);
 	}
 	
 	foreach(Node *node, _nodes)
@@ -267,74 +272,94 @@ void FramesWidget::mousePressEvent(QMouseEvent *event)
 
 void FramesWidget::mouseMoveEvent(QMouseEvent *event)
 {
-	if (_rubberBand)
-	_rubberBand->setGeometry(QRect(_origin,event->pos()).normalized());
+	QRect selectionRect(_origin,event->pos());
+	_rubberBand->setGeometry(selectionRect.normalized());
 
-	int dx;
-	dx = event->x() - _pointMouseX;
-
-	foreach(Node *node, _nodes)
+	if (!_rubberBand->isHidden())
 	{
-		QRect rect(node->pos(),node->size());
-
-		/*if (!((rect.contains(event->x(),event->y())) && (!(node->filename() == "---"))))
+		foreach(Node *node, _nodes)
 		{
-			_rubberBand->setGeometry(QRect(_origin,event->pos()).normalized());
-		}*/
+			QRect rect(node->pos(),node->size());
+			if (selectionRect.intersects(rect))
+			{
+				Model::get()->setSelection(node->indexNode(),true);
+			}
+		}
+	} else {
 
-		if (node->indexNode() == Model::get()->indexSelectedFilename())
-		{
-			_pointMouseX = event->x();
-			node->setPos(node->pos().x() + dx,node->pos().y());
-		} 
+		int dx;
+		dx = event->x() - _pointMouseX;
+		foreach(int indexSelectedElement, Model::get()->indexesSelectedElements()){
+
+			foreach(Node *node, _nodes)
+			{
+				if (node->indexNode() == indexSelectedElement)
+				{
+					_pointMouseX = event->x();
+					node->setPos(node->pos().x() + dx,node->pos().y());
+				} 
+			}
+		}
 	}
-
+	
 	update();
 }
 
-void FramesWidget::mouseReleaseEvent ( QMouseEvent * event ){
-
-	if (_rubberBand)
-	_rubberBand->hide();
-
-	QList <Model::Element> elements;
-
-	foreach(Node *node, _nodes)
+void FramesWidget::mouseReleaseEvent ( QMouseEvent * event )
+{
+	
+	QRect selectionRect(_origin,event->pos());
+	//QList <Model::Element> elements;
+	if (_rubberBand->isHidden())
 	{
 
-		QRect rect(node->pos(),node->size());
+		QList <Model::Element> elements;
 
-		/*if (!((rect.contains(event->x(),event->y())) && (!(node->filename() == "---"))))
+		foreach(Node *node, _nodes)
 		{
-			_rubberBand->hide();
-		}*/
+			QRect rect(node->pos(),node->size());
 
-		if (node->indexNode() == Model::get()->indexSelectedFilename() && (!(node->filename() == "---")))
-		{
-			if ((node->pos().x() - _startValueNodeX) > (node->size().width() + _spaceWidth)) 
+			if (selectionRect.intersects(rect))
 			{
-				int afterIndex = (node->pos().x() - _startValueNodeX)/(node->size().width() + _spaceWidth) + node->indexNode() + 1;
-				elements.append(Model::get()->selectedElement());
-				Model::get()->insertElement(elements,afterIndex);
-				Model::get()->deleteElement(node->indexNode());
-				
-			} else if ((_startValueNodeX - node->pos().x()) > (node->size().width() + _spaceWidth))
-			{
-				int afterIndex = node->indexNode() - (_startValueNodeX - node->pos().x())/(node->size().width() + _spaceWidth);
-				elements.append(Model::get()->selectedElement());
-				Model::get()->insertElement(elements,afterIndex);
-				Model::get()->deleteElement(node->indexNode() + elements.count());
+				Model::get()->setSelection(node->indexNode(),true);
 
-			}else{
-
-				node->setPos(_startValueNodeX, node->pos().y());
 			}
 
-			update();
-		} 
+			foreach(int indexSelectedElement, Model::get()->indexesSelectedElements()){
+
+				if (node->indexNode() == indexSelectedElement && (!(node->filename() == "---")))
+				{
+					if ((node->pos().x() - _startValueNodeX) > (node->size().width() + _spaceWidth)) 
+					{
+						int afterIndex = (node->pos().x() - _startValueNodeX)/(node->size().width() + _spaceWidth) + node->indexNode() + 1;
+						elements.append(Model::get()->selectedElements().at(indexSelectedElement));//correct
+						Model::get()->insertElement(elements,afterIndex);//correct
+						Model::get()->deleteElement(node->indexNode());//correct
+
+					} else if ((_startValueNodeX - node->pos().x()) > (node->size().width() + _spaceWidth))
+					{
+						int afterIndex = node->indexNode() - (_startValueNodeX - node->pos().x())/(node->size().width() + _spaceWidth);
+						elements.append(Model::get()->selectedElements().first());//correct
+						Model::get()->insertElement(elements,afterIndex);//correct
+						Model::get()->deleteElement(node->indexNode() + elements.count());//correct
+
+					}else{
+
+						node->setPos(_startValueNodeX, node->pos().y());
+					}
+
+					update();
+				} 
+			}
+		}
+
+	} 
+	else
+	{
+		_rubberBand->hide();
 	}
-
-
+		
+	delete _rubberBand;
 }
 
 void FramesWidget::resizeEvent(QResizeEvent *event)

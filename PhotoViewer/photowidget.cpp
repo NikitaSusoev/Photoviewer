@@ -86,9 +86,9 @@ void PhotoWidget::showPicture(Model::Element element)
 
 void PhotoWidget::modelChanged()
 {
-	if (!(Model::get()->selectedElement().filename == QString()))
+	if (Model::get()->selectedElements().count() == 1)
 	{
-		showPicture(Model::get()->selectedElement());
+		showPicture(Model::get()->selectedElements().first());
 	}	
 }
 

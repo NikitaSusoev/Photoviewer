@@ -71,7 +71,7 @@ void PhotoViewer::createProperties(Model::Element element)
 	{
 		setProperties(element.filename,
 			getSizePicture(element),
-			QString::number(Model::get()->indexSelectedFilename() + 1),
+			QString::number(Model::get()->indexesSelectedElements().first() + 1),
 			getTypeOfFile(element.filename),
 			QString());
 	}	
@@ -148,7 +148,19 @@ void PhotoViewer::forwardPicture()
 
 void PhotoViewer::modelChanged()
 {
-	createProperties(Model::get()->selectedElement());
+	if (Model::get()->selectedElements().count() == 1)
+	{
+		createProperties(Model::get()->selectedElements().first());
+
+		ui.back->setDisabled(Model::get()->ifOnlyFirstIsSelected());
+		ui.forward->setDisabled(Model::get()->ifOnlyLastIsSelected());
+		_currentNumber = Model::get()->indexesSelectedElements().first();
+
+	}else{
+
+		ui.back->setDisabled(true);
+		ui.forward->setDisabled(true);
+	}
 
 	if (Model::get()->elements().count() != 0)
 	{
@@ -156,7 +168,8 @@ void PhotoViewer::modelChanged()
 		ui.showAllButton->setDisabled(false);
 	}
 
-	if (!(Model::get()->selectedElement().filename == QString()))
+	/*
+	if (!(Model::get()->selectedElements().filename == QString()))
 	{
 		ui.back->setDisabled(Model::get()->ifOnlyFirstIsSelected());
 		ui.forward->setDisabled(Model::get()->ifOnlyLastIsSelected());
@@ -164,9 +177,9 @@ void PhotoViewer::modelChanged()
 	}
 	else
 	{
-		ui.back->setDisabled(true);
-		ui.forward->setDisabled(true);
-	}
+	ui.back->setDisabled(true);
+	ui.forward->setDisabled(true);
+	}*/
 }
 
 void PhotoViewer::addPictures()
