@@ -23,30 +23,53 @@ ImageNode::~ImageNode(void)
 void ImageNode::paint(QPainter *painter, QPixmap pix)
 {
 	int offsetFrame = 3;
+	QPixmap tempPix = pixm();
 	QPoint posFrame(pos().x() - offsetFrame, pos().y() - offsetFrame);
-	QSize sizeFrame(size().width() + 2*offsetFrame, size().height() + 2*offsetFrame);
-	QRect rect(posFrame,sizeFrame);
+	QRect rect;
+	QSize sizeFrame;
+	if (!this->isDragging()){	
+		sizeFrame.setWidth(size().width() + 2*offsetFrame);
+		sizeFrame.setHeight(size().height() + 2*offsetFrame);
+		rect.setRect(posFrame.x(), posFrame.y(), sizeFrame.width(), sizeFrame.height());
 
+	}
 
-	if (Model::get()->isSelected(indexNode()))
+	if (this->isDragging()){
+		painter->setOpacity(1);
+		tempPix = tempPix.scaled(30, 30, Qt::KeepAspectRatio);
+		sizeFrame.setWidth(tempPix.rect().width() + 2*offsetFrame);
+		sizeFrame.setHeight(tempPix.rect().height() + 2*offsetFrame);
+		rect.setRect(posFrame.x(), posFrame.y(), sizeFrame.width(), sizeFrame.height());
+	} else {
+		painter->setOpacity(1);
+	}
+
+	if (Model::get()->isSelected(this->indexNode()))
 	{
 		painter->setBrush(QBrush(Qt::black));
-	} 
+	}
 	else
 	{
 		painter->setBrush(QBrush(Qt::NoBrush));
-	}	
+	}
 
 	painter->setPen(QPen(Qt::lightGray));
 	painter->drawRect(rect);
 
-	if (pixm().hasAlphaChannel())
-	{
-		QPoint posCanvas(pos().x(), pos().y());
-		QSize sizeCanvas(size().width(), size().height());
-		QRect rectCanvas(posCanvas,sizeCanvas);
-		painter->fillRect(rectCanvas, _brushCanvas);
-	}
+		if (tempPix.hasAlphaChannel())
+		{
+				QRect rectCanvas;
 
-	painter->drawPixmap(pos(),pixm());
+			if (this->isDragging())
+			{
+				rectCanvas.setRect(pos().x(),pos().y(),tempPix.rect().width(),tempPix.rect().height());
+			}else
+			{
+				rectCanvas.setRect(pos().x(),pos().y(),size().width(),size().height());
+			}
+			
+			painter->fillRect(rectCanvas, _brushCanvas);
+		}
+
+	painter->drawPixmap(pos(),tempPix);
 }

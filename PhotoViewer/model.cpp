@@ -1,4 +1,5 @@
 #include "model.h"
+#include "Storage.h"
 #include "photoviewer.h"
 #include "photowidget.h"
 #include "frameswidget.h"
@@ -61,6 +62,16 @@ QString Model::getTypeOfFile(QString filename)
 	return "Unknown type";
 }
 
+void Model::removeSelection()
+{
+	for (int index = 0; index < _selections.count(); index++)
+	{
+		_selections.replace(index, false);
+	}
+
+	emit modelChanged();
+}
+
 QList <Model::Element> Model::generateAllFramesFromFilenames(QStringList lst)
 {
 	QList <Model::Element> elements;
@@ -83,7 +94,15 @@ QList <Model::Element> Model::generateAllFramesFromFilenames(QStringList lst)
 				WebPDemuxer *demux = WebPDemux(&webPData);
 				int countFrames = WebPDemuxGetI(demux, WEBP_FF_FRAME_COUNT);
 
-				if (countFrames > 1)
+				element.filename = filename;
+
+				for (int i = 0; i < countFrames; i++)
+				{
+					element.frameIndex = i;
+					elements.append(element);
+				}
+
+			/*	if (countFrames > 1)
 				{
 					element.filename = filename;
 
@@ -91,7 +110,6 @@ QList <Model::Element> Model::generateAllFramesFromFilenames(QStringList lst)
 					{	
 						element.frameIndex = i;
 						elements.append(element);
-
 					}
 				} 
 				else
@@ -99,9 +117,9 @@ QList <Model::Element> Model::generateAllFramesFromFilenames(QStringList lst)
 					element.filename = filename;
 					element.frameIndex = 0;
 					elements.append(element);
-				}
+				}*/
 			}
-		} 
+		}
 		else
 		{
 			element.filename = filename;
@@ -114,9 +132,10 @@ QList <Model::Element> Model::generateAllFramesFromFilenames(QStringList lst)
 }
 
 
-QPixmap Model::getPixmapFromElement(Element element)
+QPixmap Model::getPixmapFromElement(Element element, int width, int height)
 {
-	QFile f1(element.filename);
+	return Storage::get()->getPicture(element, width, height);
+	/*QFile f1(element.filename);
 	int w,h;
 	QPixmap pix;
 
@@ -124,7 +143,7 @@ QPixmap Model::getPixmapFromElement(Element element)
 	{
 		QByteArray ar = f1.readAll();
 
-		if (element.filename.contains(".webp", Qt::CaseInsensitive))
+		if (element.filename.endsWith(".webp", Qt::CaseInsensitive))
 		{
 			WebPData webPData;
 			webPData.bytes = (const uint8_t *)ar.constData();
@@ -155,8 +174,13 @@ QPixmap Model::getPixmapFromElement(Element element)
 
 		f1.close();
 
-		return pix;
-	}
+		if (width == 0 && height == 0)
+		{
+			return pix;
+		}
+
+		return pix.scaled(width, height, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+	}*/
 }
 
 void Model::insertElement(QList <Element> elements, int after)
@@ -178,9 +202,32 @@ void Model::deleteElement(int index)
 	emit modelChanged();
 }
 
-void Model::moveElement(int oldIndex, int newIndex)
+void Model::moveElement(QList <int> indexes, int newIndex)
 {
-	_elements.move(oldIndex, newIndex);
+	int oldIndex, toIndex;
+
+	if (indexes.isEmpty())
+	{
+		return;
+	}
+
+	if (indexes.first() > newIndex)
+	{
+		oldIndex = indexes.last();
+		toIndex = newIndex;
+	} 
+	else
+	{	
+		oldIndex = indexes.first();
+		toIndex = newIndex - 1;
+	}
+
+	foreach (int index, indexes){
+
+		setSelection(index, false);
+		_elements.move(oldIndex, toIndex);
+	}
+	
 	emit modelChanged();
 }
 
@@ -203,13 +250,18 @@ void Model::setSelection(int index, bool value)
 QList<int> Model::indexesSelectedElements()
 {
 	QList<int> trueSelections;
+	int indexSelection = 0;
 
 	foreach(bool selection, _selections)
 	{
+		
 		if (selection)
 		{
-			trueSelections.append(_selections.indexOf(selection));
+			int t = _selections.indexOf(selection);
+			trueSelections.append(indexSelection);
 		}
+
+		indexSelection++;
 	}
 
 	return trueSelections;
@@ -258,6 +310,11 @@ Model *Model::singleModel = 0;
 void Model::setElements(QList <Element> elements)
 {
 	_elements = elements;
+
+	foreach(Element element, elements){
+
+	}
+
 	_selections.clear();
 
 	for (int i = 0; i < _elements.count(); i++)

@@ -80,7 +80,7 @@ void PhotoWidget::setPixmap(const QPixmap &pxm)
 void PhotoWidget::showPicture(Model::Element element)
 {
 	setWindowTitle(element.filename);
-	setPixmap(Model::get()->getPixmapFromElement(element));
+	setPixmap(Model::get()->getPixmapFromElement(element, 0, 0));
 }
 
 
@@ -102,12 +102,12 @@ void PhotoWidget::paintEvent(QPaintEvent *event)
 	case unitScale:
 		pix = _pict;
 		break;
-	case fitScale:
-		pix = _pict.scaledToWidth(frameSize().width(),Qt::SmoothTransformation);
-		pix = pix.scaledToWidth(frameSize().height(),Qt::SmoothTransformation);
-		break;
-	case otherScale:
 
+	case fitScale:		
+		pix = _pict.scaled(width(), height(), Qt::KeepAspectRatio, Qt::SmoothTransformation);	
+		break;
+
+	case otherScale:
 		break;
 	}
 	

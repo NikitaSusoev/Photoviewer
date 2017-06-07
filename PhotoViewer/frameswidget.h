@@ -34,6 +34,12 @@ class FramesWidget : public QWidget
 		int _pressedIndexNode;
 		QPoint _origin;
 		QRubberBand *_rubberBand;
+		int _dxMouse;
+		int _dyMouse;
+		int _timerID;
+		int _dx;
+		bool _isStartTimer;
+		QPoint _posMoveEvent;
 
 public:
 	FramesWidget(QWidget *parent);
@@ -66,6 +72,7 @@ protected:
 	void paintEvent(QPaintEvent *event);
 	void resizeEvent (QResizeEvent *event);
 	void contextMenuEvent (QContextMenuEvent *event);
+	void timerEvent(QTimerEvent *event);
 
 };
 

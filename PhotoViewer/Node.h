@@ -3,6 +3,8 @@
 #include <QSize>
 #include <QPainter>
 
+
+
 class Node
 {
 	QPoint _pos;
@@ -11,10 +13,14 @@ class Node
 	QString _filename;
 	int _indexNode;
 	int _indexFrame;
+	bool _isDragging;
 
 public:
 	Node(void);
 	~Node(void);
+	
+	bool isDragging() {return _isDragging;}
+	void setDragging(bool dragging){_isDragging = dragging;}
 
 	QPoint pos() {return _pos;}
 	void setPos(QPoint pnt){_pos = pnt;} 

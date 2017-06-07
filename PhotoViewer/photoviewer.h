@@ -49,6 +49,8 @@ public slots:
 
 protected:
 
+	void resizeEvent(QResizeEvent *event);
+
 private:
 	Ui::PhotoViewerClass ui;
 };

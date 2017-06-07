@@ -6,8 +6,6 @@
 #include <QStringList>
 #include <QPixmap>
 
-
-
 class Model : public QObject
 {
 	Q_OBJECT
@@ -33,7 +31,7 @@ public:
 	void addElement(QList <Element> elements);
 	void insertElement(QList <Element> elements, int after);
 	void deleteElement(int index);
-	void moveElement(int oldIndex, int newIndex);
+	void moveElement(QList <int> indexes, int newIndex);
 	bool ifOnlyFirstIsSelected();
 	bool ifOnlyLastIsSelected();
 	void setSelection(int index, bool value);
@@ -43,9 +41,10 @@ public:
 	bool isSelected(int index);
 	void addElement(QStringList lst);
 	QString getTypeOfFile(QString filename);
+	void removeSelection();
 
 	QList <Model::Element> generateAllFramesFromFilenames(QStringList lst);
-	QPixmap getPixmapFromElement(Element);
+	QPixmap getPixmapFromElement(Element, int width, int height);
 
 	QList <Element> elements(){return _elements;}
 	void setElements(QList <Element> elements);

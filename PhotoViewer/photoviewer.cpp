@@ -20,7 +20,6 @@ PhotoViewer::PhotoViewer(QWidget *parent, Qt::WFlags flags)
 	: QMainWindow(parent, flags)
 {
 	 _currentNumber = 0;
-
 	ui.setupUi(this);
 	ui.back->setDisabled(true);
 	ui.forward->setDisabled(true);
@@ -123,14 +122,15 @@ void PhotoViewer::showAll()
 
 void PhotoViewer::chooseFiles()
 {
-
 	QStringList lst = QFileDialog::getOpenFileNames(this,"Choose Files");
 	
 	if (lst.isEmpty())
 		return;
 
-	ui.statusBar->showMessage(QString::number(Model::get()->generateAllFramesFromFilenames(lst).count()));
-	Model::get()->setElements(Model::get()->generateAllFramesFromFilenames(lst));
+	QList <Model::Element> elements = Model::get()->generateAllFramesFromFilenames(lst);
+
+	ui.statusBar->showMessage(QString::number(elements.count()));
+	Model::get()->setElements(elements);
 }
 
 
@@ -167,19 +167,6 @@ void PhotoViewer::modelChanged()
 		ui.ownScaleButton->setDisabled(false);
 		ui.showAllButton->setDisabled(false);
 	}
-
-	/*
-	if (!(Model::get()->selectedElements().filename == QString()))
-	{
-		ui.back->setDisabled(Model::get()->ifOnlyFirstIsSelected());
-		ui.forward->setDisabled(Model::get()->ifOnlyLastIsSelected());
-		_currentNumber = Model::get()->indexSelectedFilename();
-	}
-	else
-	{
-	ui.back->setDisabled(true);
-	ui.forward->setDisabled(true);
-	}*/
 }
 
 void PhotoViewer::addPictures()
@@ -196,9 +183,6 @@ void PhotoViewer::addPictures()
 
 void PhotoViewer::save()
 {
-	QList <QImage *> images;
-	
-	QList <Model::Element> elements = Model::get()->elements();
 	QString filename = QFileDialog::getSaveFileName(this, "Choose Folder", "", ".webp");
 
 	if (filename.isEmpty())
@@ -206,9 +190,10 @@ void PhotoViewer::save()
 		return;
 	}
 
-	foreach( Model::Element element, elements){
+	QList <QImage *> images;
 
-		QImage *image = new QImage(Model::get()->getPixmapFromElement(element).toImage());
+	foreach(Model::Element element, Model::get()->elements()){
+		QImage *image = new QImage(Model::get()->getPixmapFromElement(element, 0, 0).toImage());
 		images.append(image);
 	}
 
@@ -216,12 +201,16 @@ void PhotoViewer::save()
 	f.open(QIODevice::WriteOnly);
 	WebPData webPData = createWebPAnimation(images);
 
+	f.write((const char*)webPData.bytes,webPData.size);
+	f.close();
+
 	foreach(QImage *image, images){
 		delete image;
 	}
+}
 
-	f.write((const char*)webPData.bytes,webPData.size);
-	f.close();
+void PhotoViewer::resizeEvent(QResizeEvent *event)
+{
 }
 
 QImage* PhotoViewer::getFrameFromFile(QString file)
@@ -266,8 +255,9 @@ WebPData PhotoViewer::createWebPAnimation(QList<QImage *> images)
 	WebPMux *mux = WebPMuxNew();
 	WebPData webPData;
 	WebPMuxAnimParams params;
+	int tr = 0;
 
-	if (images.count() < 2)
+	if (images.count() == 1)
 	{
 		WebPData *webPDataForImage;
 		webPDataForImage->size = getWebPDataFromImage(images.first()).size;
@@ -281,9 +271,10 @@ WebPData PhotoViewer::createWebPAnimation(QList<QImage *> images)
 			fr.bitstream.size = getWebPDataFromImage(image).size;
 			fr.bitstream.bytes = getWebPDataFromImage(image).bytes;
 			fr.id = WEBP_CHUNK_ANMF;
-			fr.x_offset = 100;
-			fr.y_offset = 0;
-			fr.duration = 1000;
+			fr.x_offset = tr;
+			fr.y_offset = tr;
+			tr = tr + 10;
+			fr.duration = 300;
 			fr.dispose_method = WEBP_MUX_DISPOSE_BACKGROUND;
 			fr.blend_method = WEBP_MUX_BLEND;
 			int push = WebPMuxPushFrame(mux, &fr, 1);	
