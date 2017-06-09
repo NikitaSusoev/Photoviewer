@@ -135,52 +135,6 @@ QList <Model::Element> Model::generateAllFramesFromFilenames(QStringList lst)
 QPixmap Model::getPixmapFromElement(Element element, int width, int height)
 {
 	return Storage::get()->getPicture(element, width, height);
-	/*QFile f1(element.filename);
-	int w,h;
-	QPixmap pix;
-
-	if (f1.open(QIODevice::ReadOnly))
-	{
-		QByteArray ar = f1.readAll();
-
-		if (element.filename.endsWith(".webp", Qt::CaseInsensitive))
-		{
-			WebPData webPData;
-			webPData.bytes = (const uint8_t *)ar.constData();
-			webPData.size = ar.size();
-			WebPDemuxer *demux = WebPDemux(&webPData);
-			int countFrames = WebPDemuxGetI(demux, WEBP_FF_FRAME_COUNT);
-
-			if (countFrames > 1)
-			{
-				WebPIterator iter;
-				WebPDemuxGetFrame(demux,element.frameIndex,&iter);
-				uint8_t *pData1 = WebPDecodeBGRA(iter.fragment.bytes, iter.fragment.size, &w, &h);
-				QImage img(pData1, w, h, QImage::Format_ARGB32);
-				pix = QPixmap::fromImage(img);
-			} 
-			else
-			{
-				uint8_t *pData = WebPDecodeBGRA((const uint8_t *)ar.constData(), ar.size(), &w, &h);
-				QImage img(pData, w, h, QImage::Format_ARGB32);
-				pix = QPixmap::fromImage(img);
-			}
-		}
-		else
-		{
-			QImage img(element.filename);
-			pix = QPixmap::fromImage(img);
-		}
-
-		f1.close();
-
-		if (width == 0 && height == 0)
-		{
-			return pix;
-		}
-
-		return pix.scaled(width, height, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-	}*/
 }
 
 void Model::insertElement(QList <Element> elements, int after)

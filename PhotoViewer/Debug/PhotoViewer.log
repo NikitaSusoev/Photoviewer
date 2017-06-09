@@ -1,0 +1,42 @@
+﻿Построение начато 07.06.2017 17:54:59.
+     1>Проект "C:\Work\PhotoViewer\PhotoViewer\PhotoViewer.vcxproj" в узле 2 (целевые объекты build).
+     1>InitializeBuildStatus:
+         Создание "Debug\PhotoViewer.unsuccessfulbuild", так как было задано "AlwaysCreate".
+       CustomBuild:
+         Для всех выходных данных обновления не требуется.
+       ClCompile:
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I.\GeneratedFiles /I. /IC:\Qt\4.8.6\include /I.\GeneratedFiles\Debug /IC:\Qt\4.8.6\include\QtCore /IC:\Qt\4.8.6\include\QtGui /I"C:\Work\libwebp-0.5.2\include" /Zi /nologo /W1 /WX- /Od /Oy- /D UNICODE /D WIN32 /D QT_DLL /D QT_CORE_LIB /D QT_GUI_LIB /Gm- /EHsc /MDd /GS /fp:precise /Zc:wchar_t- /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt Storage.cpp model.cpp
+         Storage.cpp
+         model.cpp
+         Создание кода...
+         Для всех выходных данных обновления не требуется.
+       Link:
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Work\PhotoViewer\Win32\Debug\\PhotoViewer.exe" /NOLOGO /LIBPATH:C:\Qt\4.8.6\lib /LIBPATH:"C:\Work\libwebp-0.5.2\lib_32" qtmaind.lib QtCored4.lib QtGuid4.lib libwebp_debug.lib libwebpdecoder_debug.lib libwebpdemux_debug.lib libwebpmux_debug.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\PhotoViewer.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Work\PhotoViewer\Win32\Debug\PhotoViewer.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Work\PhotoViewer\Win32\Debug\PhotoViewer.lib" /MACHINE:X86 Debug\frameswidget.obj
+         Debug\moc_frameswidget.obj
+         Debug\moc_Loader.obj
+         Debug\moc_model.obj
+         Debug\moc_photoviewer.obj
+         Debug\moc_photowidget.obj
+         Debug\moc_Storage.obj
+         Debug\qrc_photoviewer.obj
+         Debug\ImageNode.obj
+         Debug\Loader.obj
+         Debug\main.obj
+         Debug\model.obj
+         Debug\Node.obj
+         Debug\photoviewer.obj
+         Debug\photowidget.obj
+         Debug\SpaceNode.obj
+         Debug\Storage.obj
+         LINK : не найден или не выполнена сборка C:\Work\PhotoViewer\Win32\Debug\\PhotoViewer.exe при последней инкрементной компоновке; выполняется полная компоновка
+         PhotoViewer.vcxproj -> C:\Work\PhotoViewer\Win32\Debug\PhotoViewer.exe
+       Manifest:
+         c:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"C:\Work\PhotoViewer\Win32\Debug\\PhotoViewer.exe;#1" /manifest Debug\PhotoViewer.exe.intermediate.manifest
+       FinalizeBuildStatus:
+         Файл "Debug\PhotoViewer.unsuccessfulbuild" удаляется.
+         Обращение к "Debug\PhotoViewer.lastbuildstate".
+     1>Построение проекта "C:\Work\PhotoViewer\PhotoViewer\PhotoViewer.vcxproj" завершено (целевые объекты build).
+
+Построение успешно завершено.
+
+Затраченное время: 00:00:04.25
