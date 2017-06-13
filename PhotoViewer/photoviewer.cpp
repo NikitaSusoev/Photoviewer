@@ -243,6 +243,7 @@ PhotoViewer::FileData PhotoViewer::getFileData(QString file)
 		fileData.width = w;
 		fileData.height = h;
 	}
+
 	f1.close();
 
 	return fileData;
@@ -255,7 +256,7 @@ WebPData PhotoViewer::createWebPAnimation(QList<QImage *> images)
 	WebPMux *mux = WebPMuxNew();
 	WebPData webPData;
 	WebPMuxAnimParams params;
-	int tr = 0;
+	//int tr = 0;
 
 	if (images.count() == 1)
 	{
@@ -271,10 +272,10 @@ WebPData PhotoViewer::createWebPAnimation(QList<QImage *> images)
 			fr.bitstream.size = getWebPDataFromImage(image).size;
 			fr.bitstream.bytes = getWebPDataFromImage(image).bytes;
 			fr.id = WEBP_CHUNK_ANMF;
-			fr.x_offset = tr;
-			fr.y_offset = tr;
-			tr = tr + 10;
-			fr.duration = 300;
+			fr.x_offset = 0;//tr;
+			fr.y_offset = 0;//tr;
+			//tr = tr + 10;
+			fr.duration = 100;
 			fr.dispose_method = WEBP_MUX_DISPOSE_BACKGROUND;
 			fr.blend_method = WEBP_MUX_BLEND;
 			int push = WebPMuxPushFrame(mux, &fr, 1);	

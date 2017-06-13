@@ -2,6 +2,7 @@
 #define LOADER_H
 
 #include <QPixmap>
+#include <QFile>
 #include "model.h"
 
 class Loader : public QObject
@@ -19,8 +20,8 @@ public:
 	~Loader();
 
 	static Loader *get();
-
-	QPixmap loadPixmapFromElement(Model::Element element);
+	int getCountFrame(QByteArray byteArray);
+	QPixmap loadPixmapFromElement(Model::Element element, int width, int height);
 };
 
 #endif

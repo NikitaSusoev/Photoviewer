@@ -28,6 +28,7 @@ class PhotoWidget : public QWidget
 		QPixmap _tempPix;
 		QBrush _brushCanvas;
 		ViewMode _viewMode ;
+		Model::Element _currentElement;
 
 public:
 	PhotoWidget(QWidget *parent);

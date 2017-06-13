@@ -4,6 +4,8 @@
 #include <QString>
 #include <QSize>
 #include <QList>
+#include <QFile>
+
 #include "model.h"
 
 class Storage : public QObject
@@ -29,7 +31,7 @@ public:
 	~Storage();
 
 	QPixmap getPicture(Model::Element element, int width, int height);
-
+	int getCountFramesFromWebP(QByteArray byteArray);
 	static Storage *get();
 };
 

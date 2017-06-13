@@ -14,11 +14,11 @@ Loader::Loader(void)
 }
 
 
-QPixmap Loader::loadPixmapFromElement(Model::Element element)
+QPixmap Loader::loadPixmapFromElement(Model::Element element, int width, int height)
 {
 	QFile f1(element.filename);
 	int w,h;
-	QPixmap pix;
+	QPixmap pix = 0;
 
 	if (f1.open(QIODevice::ReadOnly))
 	{
@@ -54,6 +54,18 @@ QPixmap Loader::loadPixmapFromElement(Model::Element element)
 		}
 
 		f1.close();
+
+		if (width == 0 && height == 0)
+		{
+			return pix;
+		}
+		else
+		{
+			return pix.scaled(width, height, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+		}		
+	}
+	else
+	{
 		return pix;
 	}
 }
@@ -72,4 +84,16 @@ Loader * Loader::get()
 	}
 
 	return singleLoader;
+}
+
+int Loader::getCountFrame(QByteArray byteArray)
+{
+	//QByteArray ar = file.readAll();
+	WebPData webPData;
+	webPData.bytes = (const uint8_t *)byteArray.constData();
+	webPData.size = byteArray.size();
+	WebPDemuxer *demux = WebPDemux(&webPData);
+	int countFrames = WebPDemuxGetI(demux, WEBP_FF_FRAME_COUNT);
+
+	return countFrames;
 }

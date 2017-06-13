@@ -83,50 +83,26 @@ QList <Model::Element> Model::generateAllFramesFromFilenames(QStringList lst)
 
 		element.typeOfFile = getTypeOfFile(filename);
 
-		if (filename.endsWith(".webp", Qt::CaseInsensitive))
+		if (f1.open(QIODevice::ReadOnly))
 		{
-			if (f1.open(QIODevice::ReadOnly))
-			{
-				QByteArray ar = f1.readAll();
-				WebPData webPData;
-				webPData.bytes = (const uint8_t *)ar.constData();
-				webPData.size = ar.size();
-				WebPDemuxer *demux = WebPDemux(&webPData);
-				int countFrames = WebPDemuxGetI(demux, WEBP_FF_FRAME_COUNT);
+			element.filename = filename;
 
-				element.filename = filename;
+			if (filename.endsWith(".webp", Qt::CaseInsensitive))
+			{
+				int countFrames = Storage::get()->getCountFramesFromWebP(f1.readAll());
 
 				for (int i = 0; i < countFrames; i++)
 				{
 					element.frameIndex = i;
 					elements.append(element);
 				}
-
-			/*	if (countFrames > 1)
-				{
-					element.filename = filename;
-
-					for (int i = 0; i < countFrames; i++)
-					{	
-						element.frameIndex = i;
-						elements.append(element);
-					}
-				} 
-				else
-				{
-					element.filename = filename;
-					element.frameIndex = 0;
-					elements.append(element);
-				}*/
+			}
+			else
+			{
+				element.frameIndex = 0;
+				elements.append(element);
 			}
 		}
-		else
-		{
-			element.filename = filename;
-			element.frameIndex = 0;
-			elements.append(element);
-		}
-
 	}
 	return elements;
 }
@@ -149,11 +125,15 @@ void Model::insertElement(QList <Element> elements, int after)
 	emit modelChanged();
 }
 
-void Model::deleteElement(int index)
+void Model::deleteElements(QList <int> indexesElements)
 {
-	_elements.removeAt(index);
-	_selections.removeAt(index);
-	emit modelChanged();
+	foreach(int index, indexesElements)
+	{
+		_elements.removeAt(indexesElements.first());
+		_selections.removeAt(indexesElements.first());
+	}
+
+ 	emit modelChanged();
 }
 
 void Model::moveElement(QList <int> indexes, int newIndex)

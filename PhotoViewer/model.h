@@ -30,7 +30,7 @@ public:
 
 	void addElement(QList <Element> elements);
 	void insertElement(QList <Element> elements, int after);
-	void deleteElement(int index);
+	void deleteElements(QList <int> indexesElements);
 	void moveElement(QList <int> indexes, int newIndex);
 	bool ifOnlyFirstIsSelected();
 	bool ifOnlyLastIsSelected();

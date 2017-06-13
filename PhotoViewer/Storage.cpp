@@ -1,6 +1,6 @@
 #include "Storage.h"
 #include "Loader.h"
-
+#include <QFile>
 
 Storage::Storage(void)
 {
@@ -16,24 +16,21 @@ QPixmap Storage::getPicture(Model::Element element, int width, int height)
 			return picture.pixmap;
 		}
 	}
-	int t = _cashPictures.count();
-	QPixmap pixmap = Loader::get()->loadPixmapFromElement(element);
+
 	Picture picture;
+	picture.pixmap = Loader::get()->loadPixmapFromElement(element, width, height);
 	picture.filename = element.filename;
 	picture.frameIndex = element.frameIndex;
-
-	if (width == 0 && height == 0)
-	{
-		picture.pixmap = pixmap;
-	}else{
-		picture.pixmap = pixmap.scaled(width, height, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-	}
-	
 	picture.size.setWidth(width);
 	picture.size.setHeight(height);
 	_cashPictures.append(picture);
 
 	return picture.pixmap;
+}
+
+int Storage::getCountFramesFromWebP(QByteArray byteArray)
+{
+	return Loader::get()->getCountFrame(byteArray);
 }
 
 Storage *Storage::singleStorage = 0;

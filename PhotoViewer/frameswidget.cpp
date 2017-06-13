@@ -197,6 +197,13 @@ void FramesWidget::modelChanged()
 	QList <Model::Element> elements = Model::get()->elements();
 	QList <Model::Element> selectedElements = Model::get()->selectedElements(); 
 
+	if (elements.isEmpty())
+	{
+		setFilenames(elements);
+		_currentElements = elements;
+		return;
+	}
+
 	if (!(compareElementsList(elements)))
 	{
 		setFilenames(elements);
@@ -250,6 +257,12 @@ void FramesWidget::mousePressEvent(QMouseEvent *event)
 		return;
 	}
 
+	//if (Model::get()->elements().isEmpty())
+	//{
+	//	update();
+	//	return;
+	//}
+
 	_origin = event->pos();
 	_pointMouseX = event->pos().x();
 	_pointMouseY = event->pos().y();
@@ -300,6 +313,17 @@ void FramesWidget::mousePressEvent(QMouseEvent *event)
 
 void FramesWidget::mouseMoveEvent(QMouseEvent *event)
 {
+	if (event->buttons().testFlag(Qt::RightButton))
+	{
+		QWidget::mouseMoveEvent(event);
+		return;
+	}
+
+	if (_nodes.isEmpty())
+	{
+		return;
+	}
+
 	_posMoveEvent = event->pos();
 
 	if (_rubberBand != 0)
@@ -418,6 +442,17 @@ void FramesWidget::mouseMoveEvent(QMouseEvent *event)
 
 void FramesWidget::mouseReleaseEvent ( QMouseEvent * event )
 {
+
+	if (event->button() != Qt::LeftButton)
+	{
+		QWidget::mouseReleaseEvent(event);
+		return;
+	}
+
+	if (_nodes.isEmpty())
+	{
+		return;
+	}
 
 	if (_rubberBand != 0)
 	{
@@ -558,5 +593,5 @@ void FramesWidget::insertPictures()
 
 void FramesWidget::deletePictures()
 {
-	Model::get()->deleteElement(indexAfter());
+	Model::get()->deleteElements(Model::get()->indexesSelectedElements());
 }

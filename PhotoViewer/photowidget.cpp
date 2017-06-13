@@ -79,8 +79,14 @@ void PhotoWidget::setPixmap(const QPixmap &pxm)
 
 void PhotoWidget::showPicture(Model::Element element)
 {
+	_currentElement = element;
+
 	setWindowTitle(element.filename);
-	setPixmap(Model::get()->getPixmapFromElement(element, 0, 0));
+	//setPixmap(Model::get()->getPixmapFromElement(element, 0, 0));
+	_pict = Model::get()->getPixmapFromElement(_currentElement, width(), height());
+	_viewMode = fitScale;
+
+	update();
 }
 
 
@@ -89,7 +95,14 @@ void PhotoWidget::modelChanged()
 	if (Model::get()->selectedElements().count() == 1)
 	{
 		showPicture(Model::get()->selectedElements().first());
-	}	
+	} 
+ 	else
+		{
+			Model::Element element;
+			element.frameIndex = -100;
+			_currentElement = element; 			
+ 			update();
+		}
 }
 
 void PhotoWidget::paintEvent(QPaintEvent *event)
@@ -97,14 +110,22 @@ void PhotoWidget::paintEvent(QPaintEvent *event)
 	QPainter paint(this);
 	QPixmap pix;
 
+	if (_currentElement.frameIndex == -100)
+	{
+		_pict = QPixmap(width(),height());
+		_pict.fill();
+	}
+
 	switch (_viewMode)
 	{
 	case unitScale:
-		pix = _pict;
+		//pix = _pict;
+		pix = Model::get()->getPixmapFromElement(_currentElement, 0, 0);
 		break;
 
 	case fitScale:		
-		pix = _pict.scaled(width(), height(), Qt::KeepAspectRatio, Qt::SmoothTransformation);	
+		//pix = _pict.scaled(width(), height(), Qt::KeepAspectRatio, Qt::SmoothTransformation);	
+		pix = Model::get()->getPixmapFromElement(_currentElement, width(), height());
 		break;
 
 	case otherScale:
@@ -129,38 +150,38 @@ void PhotoWidget::paintEvent(QPaintEvent *event)
 
 void PhotoWidget::mouseMoveEvent(QMouseEvent *event)
 {
-	int dx = event->x() - _pointMouseX;
-	int dy = event->y() - _pointMouseY;
-	_pointPicture.setX(_pointPictureX + dx);
-	_pointPicture.setY(_pointPictureY + dy);
-	update();
+	//int dx = event->x() - _pointMouseX;
+	//int dy = event->y() - _pointMouseY;
+	//_pointPicture.setX(_pointPictureX + dx);
+	//_pointPicture.setY(_pointPictureY + dy);
+	//update();
 }
 
 void PhotoWidget::mousePressEvent(QMouseEvent *event)
 {
-	_pointMouseX = event->x();
-	_pointMouseY = event->y();
-	_pointPictureX = _pointPicture.x();
-	_pointPictureY = _pointPicture.y();
+	//_pointMouseX = event->x();
+	//_pointMouseY = event->y();
+	//_pointPictureX = _pointPicture.x();
+	//_pointPictureY = _pointPicture.y();
 }
 
 void PhotoWidget::mouseDoubleClickEvent(QMouseEvent *event)
 {
-	_pointPicture.setX(width()/2 - _widthPix/2);
-	_pointPicture.setY(height()/2 - _heightPix/2);
-	update();
+	//_pointPicture.setX(width()/2 - _widthPix/2);
+	//_pointPicture.setY(height()/2 - _heightPix/2);
+	//update();
 }
 
 void PhotoWidget::wheelEvent(QWheelEvent *event)
 {
-	float temp = _currentScale;
-	_currentScale =_currentScale + event->delta() / 120;
-	update();
+	//float temp = _currentScale;
+	//_currentScale =_currentScale + event->delta() / 120;
+	//update();
 
-	if (_currentScale < 1)
-	{
-		_currentScale = temp;
-	}
+	//if (_currentScale < 1)
+	//{
+	//	_currentScale = temp;
+	//}
 }
 
 void PhotoWidget::resizeEvent (QResizeEvent *event)
