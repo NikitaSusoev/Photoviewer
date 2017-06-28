@@ -1,16 +1,12 @@
-﻿Построение начато 13.06.2017 17:27:54.
+﻿Построение начато 26.06.2017 17:56:06.
      1>Проект "C:\Work\PhotoViewer\PhotoViewer\PhotoViewer.vcxproj" в узле 2 (целевые объекты build).
      1>InitializeBuildStatus:
          Создание "Debug\PhotoViewer.unsuccessfulbuild", так как было задано "AlwaysCreate".
        CustomBuild:
          Для всех выходных данных обновления не требуется.
        ClCompile:
-         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I.\GeneratedFiles /I. /IC:\Qt\4.8.6\include /I.\GeneratedFiles\Debug /IC:\Qt\4.8.6\include\QtCore /IC:\Qt\4.8.6\include\QtGui /I"C:\Work\libwebp-0.5.2\include" /Zi /nologo /W1 /WX- /Od /Oy- /D UNICODE /D WIN32 /D QT_DLL /D QT_CORE_LIB /D QT_GUI_LIB /Gm- /EHsc /MDd /GS /fp:precise /Zc:wchar_t- /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt frameswidget.cpp photowidget.cpp
-         frameswidget.cpp
-         photowidget.cpp
-         Создание кода...
-     1>c:\work\photoviewer\photoviewer\frameswidget.cpp(86): warning C4715: FramesWidget::getFilenameSelectedPicture: значение возвращается не при всех путях выполнения
-     1>c:\work\photoviewer\photoviewer\frameswidget.cpp(541): warning C4715: FramesWidget::indexAfter: значение возвращается не при всех путях выполнения
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I.\GeneratedFiles /I. /IC:\Qt\4.8.6\include /I.\GeneratedFiles\Debug /IC:\Qt\4.8.6\include\QtCore /IC:\Qt\4.8.6\include\QtGui /I"C:\Work\libwebp-0.5.2\include" /Zi /nologo /W1 /WX- /Od /Oy- /D UNICODE /D WIN32 /D QT_DLL /D QT_CORE_LIB /D QT_GUI_LIB /Gm- /EHsc /MDd /GS /fp:precise /Zc:wchar_t- /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt SpaceNode.cpp
+         SpaceNode.cpp
          Для всех выходных данных обновления не требуется.
        Link:
          c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Work\PhotoViewer\Win32\Debug\\PhotoViewer.exe" /NOLOGO /LIBPATH:C:\Qt\4.8.6\lib /LIBPATH:"C:\Work\libwebp-0.5.2\lib_32" qtmaind.lib QtCored4.lib QtGuid4.lib libwebp_debug.lib libwebpdecoder_debug.lib libwebpdemux_debug.lib libwebpmux_debug.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\PhotoViewer.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Work\PhotoViewer\Win32\Debug\PhotoViewer.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Work\PhotoViewer\Win32\Debug\PhotoViewer.lib" /MACHINE:X86 Debug\frameswidget.obj
@@ -41,4 +37,4 @@
 
 Построение успешно завершено.
 
-Затраченное время: 00:00:04.39
+Затраченное время: 00:00:02.25

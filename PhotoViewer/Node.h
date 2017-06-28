@@ -14,6 +14,7 @@ class Node
 	int _indexNode;
 	int _indexFrame;
 	bool _isDragging;
+	QPoint _startPoint;
 
 public:
 	Node(void);
@@ -21,6 +22,9 @@ public:
 	
 	bool isDragging() {return _isDragging;}
 	void setDragging(bool dragging){_isDragging = dragging;}
+
+	void setStartPoint(QPoint point){_startPoint = point;}
+	QPoint startPoint(){return _startPoint;}
 
 	QPoint pos() {return _pos;}
 	void setPos(QPoint pnt){_pos = pnt;} 

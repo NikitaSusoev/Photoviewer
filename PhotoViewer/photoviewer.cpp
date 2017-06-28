@@ -5,6 +5,7 @@
 #include <QTreeWidgetItem>
 #include <QTreeWidget>
 #include <QFile>
+#include <QLabel>
 #include "ImageNode.h"
 #include "SpaceNode.h"
 #include "model.h"
@@ -25,6 +26,13 @@ PhotoViewer::PhotoViewer(QWidget *parent, Qt::WFlags flags)
 	ui.forward->setDisabled(true);
 	ui.ownScaleButton->setDisabled(true);
 	ui.showAllButton->setDisabled(true);
+
+	_filenameLabel = new QLabel();
+	_sizeLabel = new QLabel();
+	_numberOfPictureLabel = new QLabel();
+	statusBar()->addPermanentWidget(_filenameLabel);
+	statusBar()->addPermanentWidget(_sizeLabel);
+	statusBar()->addPermanentWidget(_numberOfPictureLabel);
 
 	connect(ui.widget, SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
 	connect(Model::get(), SIGNAL(modelChanged()), this, SLOT(modelChanged()));
@@ -56,7 +64,6 @@ QString PhotoViewer::getSizePicture(Model::Element element)
 		file.close();
 	}
 
-
 	return (QString::number(wid) + " x " + QString::number(heig));
 }
 
@@ -64,13 +71,13 @@ void PhotoViewer::createProperties(Model::Element element)
 {
 	if (element.filename == QString())
 	{
-		setProperties(QString(), QString(), QString(), QString(), QString());
+		setProperties("", "", "", "", "");
 	}
 	else
 	{
 		setProperties(element.filename,
 			getSizePicture(element),
-			QString::number(Model::get()->indexesSelectedElements().first() + 1),
+			QString::number(Model::get()->selectedElements().first().frameIndex),
 			getTypeOfFile(element.filename),
 			QString());
 	}	
@@ -100,14 +107,41 @@ QString PhotoViewer::getTypeOfFile(QString filename)
 
 void PhotoViewer::setProperties(QString filename, QString size, QString numberOfPicture, QString typeOfFile, QString others)
 {
-	ui.treeWidget->topLevelItem(0)->setText(1,filename);
-	ui.treeWidget->topLevelItem(1)->setText(1,size);
-	ui.treeWidget->topLevelItem(2)->setText(1,others);
-	ui.treeWidget->topLevelItem(3)->setText(1,typeOfFile);
-	ui.treeWidget->topLevelItem(4)->setText(1,numberOfPicture);
-	ui.treeWidget->topLevelItem(5)->setText(1,others);
-	ui.treeWidget->topLevelItem(6)->setText(1,others);
-	ui.treeWidget->topLevelItem(7)->setText(1,others);
+	if (filename == "" && size == "" && numberOfPicture == "")
+	{
+		_filenameLabel->setText("");
+		_sizeLabel->setText("");
+		_numberOfPictureLabel->setText("");
+	}
+	else
+	{
+		_filenameLabel->setText("Filename:" + filename);
+		_sizeLabel->setText("Size:" + size);
+		_numberOfPictureLabel->setText("Number of frame:" + numberOfPicture);
+	}
+	//statusBar()->
+	//statusBar()->removeWidget(_filenameLabel);
+	//statusBar()->removeWidget(_sizeLabel);
+	//statusBar()->removeWidget(_numberOfPictureLabel);
+
+	
+		// *sizeLabel, *numberOfPictureLabel;
+		//filenameLabel->setText("Filename:" + filename);
+		//sizeLabel->setText("Size:" + size);
+		//numberOfPictureLabel->setText("Number of frame:" +  numberOfPicture);
+		
+		//ui.statusBar->addPermanentWidget(sizeLabel);
+		//ui.statusBar->addPermanentWidget(numberOfPictureLabel);
+
+//		ui.statusBar->showMessage("Filename:" + filename + "   Size:" + size + "   Number of frame:" +  numberOfPicture);
+// 		ui.treeWidget->topLevelItem(0)->setText(1,filename);
+// 		ui.treeWidget->topLevelItem(1)->setText(1,size);
+// 		ui.treeWidget->topLevelItem(2)->setText(1,others);
+// 		ui.treeWidget->topLevelItem(3)->setText(1,typeOfFile);
+// 		ui.treeWidget->topLevelItem(4)->setText(1,numberOfPicture);
+// 		ui.treeWidget->topLevelItem(5)->setText(1,others);
+// 		ui.treeWidget->topLevelItem(6)->setText(1,others);
+// 		ui.treeWidget->topLevelItem(7)->setText(1,others);
 }
 
 void PhotoViewer::makeOwnScale()
@@ -151,13 +185,14 @@ void PhotoViewer::modelChanged()
 	if (Model::get()->selectedElements().count() == 1)
 	{
 		createProperties(Model::get()->selectedElements().first());
-
 		ui.back->setDisabled(Model::get()->ifOnlyFirstIsSelected());
 		ui.forward->setDisabled(Model::get()->ifOnlyLastIsSelected());
 		_currentNumber = Model::get()->indexesSelectedElements().first();
 
 	}else{
-
+		Model::Element element;
+		element.filename = QString();
+		createProperties(element);
 		ui.back->setDisabled(true);
 		ui.forward->setDisabled(true);
 	}

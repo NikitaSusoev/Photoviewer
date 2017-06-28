@@ -60,7 +60,7 @@ public:
     {
         if (PhotoViewerClass->objectName().isEmpty())
             PhotoViewerClass->setObjectName(QString::fromUtf8("PhotoViewerClass"));
-        PhotoViewerClass->resize(755, 637);
+        PhotoViewerClass->resize(880, 769);
         actionExit = new QAction(PhotoViewerClass);
         actionExit->setObjectName(QString::fromUtf8("actionExit"));
         actionOpen = new QAction(PhotoViewerClass);
@@ -148,6 +148,9 @@ public:
         new QTreeWidgetItem(treeWidget);
         new QTreeWidgetItem(treeWidget);
         treeWidget->setObjectName(QString::fromUtf8("treeWidget"));
+        treeWidget->setEnabled(false);
+        treeWidget->setMaximumSize(QSize(0, 16777215));
+        treeWidget->setAutoFillBackground(false);
 
         horizontalLayout_2->addWidget(treeWidget);
 
@@ -156,7 +159,8 @@ public:
 
         widget = new FramesWidget(centralWidget);
         widget->setObjectName(QString::fromUtf8("widget"));
-        widget->setMinimumSize(QSize(0, 201));
+        widget->setMinimumSize(QSize(0, 210));
+        widget->setMaximumSize(QSize(16777215, 250));
 
         verticalLayout_2->addWidget(widget);
 
@@ -166,7 +170,7 @@ public:
         PhotoViewerClass->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(PhotoViewerClass);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 755, 21));
+        menuBar->setGeometry(QRect(0, 0, 880, 21));
         menuFile = new QMenu(menuBar);
         menuFile->setObjectName(QString::fromUtf8("menuFile"));
         PhotoViewerClass->setMenuBar(menuBar);

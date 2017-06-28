@@ -40,6 +40,7 @@ class FramesWidget : public QWidget
 		int _dx;
 		bool _isStartTimer;
 		QPoint _posMoveEvent;
+		QPoint _strartPointForSelection;
 
 public:
 	FramesWidget(QWidget *parent);
@@ -73,7 +74,8 @@ protected:
 	void resizeEvent (QResizeEvent *event);
 	void contextMenuEvent (QContextMenuEvent *event);
 	void timerEvent(QTimerEvent *event);
-
+	void dragEnterEvent(QDragEnterEvent *event);
+	void dropEvent(QDropEvent *event);
 };
 
 #endif // FRAMESWIDGET_H

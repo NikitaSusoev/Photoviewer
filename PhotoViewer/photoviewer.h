@@ -2,6 +2,7 @@
 #define PHOTOVIEWER_H
 
 #include <QtGui/QMainWindow>
+#include <QLabel>
 #include "ui_photoviewer.h"
 #include "webp/mux_types.h"
 #include "model.h"
@@ -14,6 +15,9 @@ class PhotoViewer : public QMainWindow
 	QStringList _lst;
 	int _currentNumber;
 	QString _filename;
+	QLabel *_filenameLabel;
+	QLabel *_sizeLabel;
+	QLabel *_numberOfPictureLabel;
 
 public:
 	PhotoViewer(QWidget *parent = 0, Qt::WFlags flags = 0);

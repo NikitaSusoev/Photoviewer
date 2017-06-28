@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>755</width>
-    <height>637</height>
+    <width>880</width>
+    <height>769</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -119,6 +119,18 @@
         </item>
         <item>
          <widget class="QTreeWidget" name="treeWidget">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>0</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="autoFillBackground">
+           <bool>false</bool>
+          </property>
           <column>
            <property name="text">
             <string>Property</string>
@@ -184,7 +196,13 @@
         <property name="minimumSize">
          <size>
           <width>0</width>
-          <height>201</height>
+          <height>210</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>250</height>
          </size>
         </property>
        </widget>
@@ -198,7 +216,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>755</width>
+     <width>880</width>
      <height>21</height>
     </rect>
    </property>

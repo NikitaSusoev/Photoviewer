@@ -9,7 +9,9 @@ class Loader : public QObject
 {
 	Q_OBJECT
 public:
-	
+
+	Model::Element _tempElement;
+	QPixmap _tempPixmap;	
 
 private:
 

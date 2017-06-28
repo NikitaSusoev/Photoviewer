@@ -14,6 +14,11 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include <QTimer>
+#include <QListWidget>
+#include <QMessageBox>
+#include <QDropEvent>
+#include <QUrl>
+#include <QDebug>
 
 #include "webp/decode.h"
 #include "webp/encode.h"
@@ -43,6 +48,8 @@ FramesWidget::FramesWidget(QWidget *parent)
 	setLayout(box);
 	show();
 	
+	setAcceptDrops(true);
+
 	connect(_horScroll, SIGNAL(valueChanged(int)), this, SLOT(valueChangedHorScroll(int)));
 	connect(Model::get(), SIGNAL(modelChanged()), this, SLOT(modelChanged()));
 }
@@ -54,15 +61,19 @@ FramesWidget::~FramesWidget()
 
 void FramesWidget::setNodes(QList<Node *> lst)
 {
+	int widthFrames = 0;
+
 	foreach(Node *node, lst)
 	{
 		node->setPos(node->pos().x(),frameSize().height()/2 - node->size().height()/2);
+		widthFrames = widthFrames + node->size().width();
 	}
 
 	_nodes = lst;
 	Node *nodeLast = _nodes.last();
 	Node *nodeFirst = _nodes.first();
-	int scrollRange =(nodeLast->pos().x() + nodeLast->size().width()) - nodeFirst->pos().x() - width();
+	int scrollRange = widthFrames - width();
+	//int scrollRange =(nodeLast->pos().x() + nodeLast->size().width()) - nodeFirst->pos().x() - width();
 	//int offsetScrollByAdd = _horScroll->maximum() - scrollRange;
 	_horScroll->setRange(0,scrollRange);
 	//_horScroll->setValue(_horScroll->value() - offsetScrollByAdd);
@@ -112,6 +123,7 @@ void FramesWidget::setFilenames(QList <Model::Element> elements)
 	SpaceNode *sNode = new SpaceNode();
 	sNode->setIndexNode(indexNode);
 	sNode->setPos(0,0);
+	sNode->setStartPoint(QPoint(0, (frameSize().height() - _imageHeight) / 2));
 	sNode->setSize(_spaceWidth,_imageHeight);
 	sNode->setFilename("---");
 	sNode->setDragging(false);
@@ -145,6 +157,7 @@ void FramesWidget::setFilenames(QList <Model::Element> elements)
 		SpaceNode *sNode = new SpaceNode();
 		sNode->setIndexNode(indexNode);
 		sNode->setPos(imageNodeX+imageWidth,0);
+		sNode->setStartPoint(QPoint(imageNodeX+imageWidth, (frameSize().height() - _imageHeight) / 2));
 		sNode->setSize(_spaceWidth,_imageHeight);
 		sNode->setFilename("---");
 		sNode->setDragging(false);
@@ -251,6 +264,7 @@ void FramesWidget::paintEvent(QPaintEvent *event)
 
 void FramesWidget::mousePressEvent(QMouseEvent *event)
 {
+	_strartPointForSelection = event->pos();
 	if (event->button() != Qt::LeftButton)
 	{
 		QWidget::mousePressEvent(event);
@@ -308,6 +322,9 @@ void FramesWidget::mousePressEvent(QMouseEvent *event)
 			_nodes.move(_nodes.indexOf(node), tempNodes.count() - 1);
 		}	
 	}
+
+	
+
 	update();
 }
 
@@ -364,8 +381,7 @@ void FramesWidget::mouseMoveEvent(QMouseEvent *event)
 						if (_horScroll->value() != _horScroll->minimum())
 						{
 							_origin.setX(_origin.x() + 1);		
-						}
-										
+						}								
 					}
 				}
 
@@ -387,8 +403,6 @@ void FramesWidget::mouseMoveEvent(QMouseEvent *event)
 			}
 					
 			//_horScroll->setValue(dx1);
-
-		
 
 		_rubberBand->setGeometry(selectionRect.normalized());
 		
@@ -421,20 +435,25 @@ void FramesWidget::mouseMoveEvent(QMouseEvent *event)
 		dx = _pointMouseX;
 		dy = _pointMouseY;
 		int i = 0;
+		QPoint pointForMovePicture;
+		pointForMovePicture = _strartPointForSelection - event->pos();
 
-		foreach(Node *node, _nodes)
+		if (pointForMovePicture.manhattanLength() > 5)
 		{
-			QString str = node->filename();
-			if (Model::get()->isSelected(node->indexNode()) && node->filename() != "---")
+			foreach(Node *node, _nodes)
 			{
-				node->setDragging(true);
-				_pointMouseX = event->x();
-				_pointMouseY = event->y();
-				//node->setPos(node->pos().x() + dx, node->pos().y() + dy);
-				node->setPos(dx + i, dy + i);
-				i = i + 3;
+				QString str = node->filename();
+				if (Model::get()->isSelected(node->indexNode()) && node->filename() != "---")
+				{
+					node->setDragging(true);
+					_pointMouseX = event->x();
+					_pointMouseY = event->y();
+					//node->setPos(node->pos().x() + dx, node->pos().y() + dy);
+					node->setPos(dx + i, dy + i);
+					i = i + 3;
+				}
 			}
-		}
+		}	
 	}
 	
 	update();
@@ -442,6 +461,27 @@ void FramesWidget::mouseMoveEvent(QMouseEvent *event)
 
 void FramesWidget::mouseReleaseEvent ( QMouseEvent * event )
 {
+
+	if (_strartPointForSelection == event->pos() && event->button() != Qt::RightButton)
+	{
+		foreach (Node *node, _nodes){
+			QRect rect(node->pos(),node->size());
+			if (rect.contains(event->x(),event->y())){
+				Model::get()->removeSelection();
+				Model::get()->setSelection(node->indexNode(),true);
+			}
+		}
+	}
+
+	foreach(Node *node, _nodes)
+	{
+		QRect rect(node->pos(),node->size());
+
+		if (rect.contains(event->x(),event->y()) && node->filename() == "---" && _strartPointForSelection == event->pos() && event->button() != Qt::RightButton)
+		{
+			Model::get()->removeSelection();
+		}
+	}
 
 	if (event->button() != Qt::LeftButton)
 	{
@@ -495,9 +535,13 @@ void FramesWidget::mouseReleaseEvent ( QMouseEvent * event )
 			{
 				Model::get()->moveElement(Model::get()->indexesSelectedElements(), indexNode);
 			}
-			else
+			else if (event->pos().x() - _strartPointForSelection.x() > 0)
 			{
 				Model::get()->moveElement(Model::get()->indexesSelectedElements(), indexNode + 1);
+			} 
+			else
+			{
+				Model::get()->moveElement(Model::get()->indexesSelectedElements(), indexNode);
 			}
 		}
 		else
@@ -506,15 +550,14 @@ void FramesWidget::mouseReleaseEvent ( QMouseEvent * event )
 
 				if (Model::get()->isSelected(node->indexNode()))
 				{
-					ImageNode *imageNode = static_cast<ImageNode *>(node);
-					node->setPos(imageNode->startPoint().x(), imageNode->startPoint().y());
+					//ImageNode *imageNode = static_cast<ImageNode *>(node);
+					node->setPos(node->startPoint().x(), node->startPoint().y());
 				}
 			}
 		}
 	}
 
 update();
-
 }
 
 void FramesWidget::resizeEvent(QResizeEvent *event)
@@ -548,11 +591,12 @@ void FramesWidget::contextMenuEvent(QContextMenuEvent *event)
 		_rubberBand = 0;
 	}
 	
+	bool contain = false;
 	_contextPoint.setX(event->x());
 	_contextPoint.setY(event->y());
 	
 	QMenu menu;
-	menu.addAction("Add", this, SLOT(insertPictures()));
+	
 	foreach(Node *node, _nodes)
 	{
 		QRect rect(node->pos(),node->size());
@@ -560,10 +604,21 @@ void FramesWidget::contextMenuEvent(QContextMenuEvent *event)
 		if (rect.contains(_contextPoint.x(),_contextPoint.y()) && !(node->filename() == "---"))
 		{
 			menu.addAction("Delete", this, SLOT(deletePictures()));
-		} 
+			contain = true;
+		}
+
+		if (rect.contains(_contextPoint.x(),_contextPoint.y()) && (node->filename() == "---"))
+		{
+			menu.addAction("Add", this, SLOT(insertPictures()));
+			contain = true;
+		}
+	}
+
+	if (contain)
+	{
+		menu.exec(event->globalPos());
 	}
 	
-	menu.exec(event->globalPos());
 }
 
 void FramesWidget::timerEvent(QTimerEvent *event)
@@ -577,6 +632,29 @@ void FramesWidget::timerEvent(QTimerEvent *event)
 	
 	QRect selectionRect(_origin, _posMoveEvent);
 	_rubberBand->setGeometry(selectionRect.normalized());	
+}
+
+void FramesWidget::dragEnterEvent(QDragEnterEvent *event)
+{
+	event->accept();
+}
+
+void FramesWidget::dropEvent(QDropEvent *event)
+{
+	QList<QUrl> urls = event->mimeData()->urls();
+	QStringList list;
+
+	foreach(QUrl url, urls)
+	{
+		list.append(url.path().remove(0 , 1));
+	}
+
+	if (list.isEmpty())
+	{
+		return;
+	}
+
+	Model::get()->insertElement(Model::get()->generateAllFramesFromFilenames(list),1);
 }
 
 void FramesWidget::insertPictures()

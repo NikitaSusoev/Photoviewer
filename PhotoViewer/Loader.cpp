@@ -11,6 +11,9 @@
 
 Loader::Loader(void)
 {
+	_tempPixmap = 0;
+	_tempElement.filename = "-";
+	_tempElement.frameIndex = -1;
 }
 
 
@@ -20,54 +23,65 @@ QPixmap Loader::loadPixmapFromElement(Model::Element element, int width, int hei
 	int w,h;
 	QPixmap pix = 0;
 
-	if (f1.open(QIODevice::ReadOnly))
+	if (element.frameIndex == _tempElement.frameIndex && element.filename == _tempElement.filename)
 	{
-		QByteArray ar = f1.readAll();
-
-		if (element.filename.endsWith(".webp", Qt::CaseInsensitive))
+ 		pix = _tempPixmap;
+ 	}
+	else
+	{
+		if (f1.open(QIODevice::ReadOnly))
 		{
-			WebPData webPData;
-			webPData.bytes = (const uint8_t *)ar.constData();
-			webPData.size = ar.size();
-			WebPDemuxer *demux = WebPDemux(&webPData);
-			int countFrames = WebPDemuxGetI(demux, WEBP_FF_FRAME_COUNT);
+			QByteArray ar = f1.readAll();
 
-			if (countFrames > 1)
+			if (element.filename.endsWith(".webp", Qt::CaseInsensitive))
 			{
-				WebPIterator iter;
-				WebPDemuxGetFrame(demux,element.frameIndex,&iter);
-				uint8_t *pData1 = WebPDecodeBGRA(iter.fragment.bytes, iter.fragment.size, &w, &h);
-				QImage img(pData1, w, h, QImage::Format_ARGB32);
-				pix = QPixmap::fromImage(img);
-			} 
+				WebPData webPData;
+				webPData.bytes = (const uint8_t *)ar.constData();
+				webPData.size = ar.size();
+				WebPDemuxer *demux = WebPDemux(&webPData);
+				int countFrames = WebPDemuxGetI(demux, WEBP_FF_FRAME_COUNT);
+
+				if (countFrames > 1)
+				{
+					WebPIterator iter;
+					WebPDemuxGetFrame(demux,element.frameIndex,&iter);
+					uint8_t *pData1 = WebPDecodeBGRA(iter.fragment.bytes, iter.fragment.size, &w, &h);
+					QImage img(pData1, w, h, QImage::Format_ARGB32);
+					pix = QPixmap::fromImage(img);
+				} 
+				else
+				{
+					uint8_t *pData = WebPDecodeBGRA((const uint8_t *)ar.constData(), ar.size(), &w, &h);
+					QImage img(pData, w, h, QImage::Format_ARGB32);
+					pix = QPixmap::fromImage(img);
+				}
+			}
 			else
 			{
-				uint8_t *pData = WebPDecodeBGRA((const uint8_t *)ar.constData(), ar.size(), &w, &h);
-				QImage img(pData, w, h, QImage::Format_ARGB32);
+				QImage img(element.filename);
 				pix = QPixmap::fromImage(img);
 			}
+
+			_tempPixmap = pix;
+			_tempElement.filename = element.filename;
+			_tempElement.frameIndex = element.frameIndex;
+
+			f1.close();
 		}
 		else
-		{
-			QImage img(element.filename);
-			pix = QPixmap::fromImage(img);
-		}
-
-		f1.close();
-
-		if (width == 0 && height == 0)
 		{
 			return pix;
-		}
-		else
-		{
-			return pix.scaled(width, height, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 		}		
-	}
-	else
+	}	
+
+	if (width == 0 && height == 0)
 	{
 		return pix;
 	}
+	else
+	{
+		return pix.scaled(width, height, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+	}	
 }
 
 Loader::~Loader(void)
